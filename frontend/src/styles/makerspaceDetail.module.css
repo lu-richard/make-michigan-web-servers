@@ -1,0 +1,157 @@
+.cover-image {
+    display: block;
+    margin: 0 auto;
+    max-width: 45vw;
+    align-self: flex-start;
+}
+
+.main-content {
+    padding: 3rem 4rem;
+}
+
+.cover-description {
+    display: flex;
+}
+
+.top-bar {
+    padding: 3rem 20rem;
+    background-color: var(--arb-blue);
+    color: #fff;
+    display: flex;
+}
+
+.audience {
+    margin: 0.5rem 0 0 20rem;
+}
+
+.audience-heading {
+    text-wrap: nowrap;
+}
+
+.text-content {
+    font-size: 1.1rem;
+    margin-left: 3rem;
+}
+
+.status {
+    margin-bottom: 1rem;
+}
+
+.h4 {
+    font-weight: 400;
+    text-decoration: underline;
+}
+
+.contact {
+    margin-top: 3rem;
+    font-size: 1rem;
+}
+
+.collapsible {
+    margin-top: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.collapsible + .equipment-list {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.collapsible.active + .equipment-list {
+    max-height: none;
+}
+
+.collapsible .collapse, .collapsible.active .expand {
+    display: none;
+}
+
+.collapsible .expand, .collapsible.active .collapse {
+    display: inline-block;
+}
+
+.collapsible.active .collapsible-title {
+    text-decoration: underline;
+}
+
+.tags {
+    margin-top: 1rem;
+    display: flex;
+}
+
+.tag {
+    padding: 0.5rem 1rem;
+    background-color: var(--maize);
+    border-radius: 1.5rem;
+    color: var(--text-color);
+    margin-right: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.equipment-list * {
+    margin-left: 1.5rem;
+}
+
+.floorplan {
+    margin-top: 2rem;
+    max-width: 45vw;
+}
+
+.floorplan-heading {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.floorplan-line {
+    border-top: 0.05rem solid #000;
+}
+
+.floorplan-image {
+    max-width: inherit;
+}
+
+.headshots {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(15rem, 1fr));
+    gap: 0.5rem;
+    margin: 3rem 0 0 1rem;
+}
+
+.headshot {
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 0;
+    background-color: var(--main-bg-color);
+    border-radius: 2rem;
+    filter: drop-shadow(0px 4px 4px rgb(0, 0, 0, 0.1));
+}
+
+.headshot-image {
+    clip-path: circle(48%);
+    max-width: 7rem;
+    margin-bottom: 1rem;
+}
+
+.headshot-name {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.headshot-title {
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    max-width: 12rem;
+}
+
+.headshot-email {
+    color: var(--navy-blue);
+    margin-bottom: 0.2rem;
+}

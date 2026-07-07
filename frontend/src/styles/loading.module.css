@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    background-color: var(--main-bg-color);
+}
+
+.spinner {
+    width: 6rem;
+    height: 6rem;
+    border: 1rem solid var(--maize);
+    border-top: 1rem solid var(--main-bg-color);
+    border-radius: 50%;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

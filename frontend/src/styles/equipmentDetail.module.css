@@ -1,0 +1,74 @@
+.image-container {
+    display: block;
+    margin: 0 auto;
+    width: 50%;
+    padding: 0 9rem;
+    align-self: flex-start;
+}
+
+.cover-image {
+    width: 100%;
+}
+
+.main-content {
+    padding: 3rem 4rem;
+    display: flex;
+}
+
+.text-content {
+    font-size: 1.2rem;
+    margin-left: 2rem;
+    width: 50%;
+}
+
+.text-content-section {
+    margin-bottom: 3rem;
+}
+
+.text-content-heading {
+    font-weight: 500;
+    text-decoration: underline;
+    margin-bottom: 0.5rem;
+}
+
+.top-bar {
+    padding: 3rem 20rem;
+    background-color: var(--arb-blue);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 300;
+    font-size: 1.1rem;
+}
+
+.top-bar-subinfo {
+    margin-top: 1rem;
+}
+
+.top-bar-side-info {
+    font-size: 1.2rem;
+}
+
+.subheading {
+    font-weight: 500;
+}
+
+.title {
+    font-size: 2.5rem;
+}
+
+.equipment-model-name {
+    margin-left: 1.5rem;
+    font-style: italic;
+    font-weight: inherit;
+    font-weight: 300;
+    font-size: 2rem;
+}
+
+.functions {
+    text-decoration: underline;
+}
+
+.credential-model {
+    margin-top: 2rem;
+}

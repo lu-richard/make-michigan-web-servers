@@ -1,0 +1,46 @@
+.container {
+    padding-inline: 15rem;
+}
+
+.main-heading {
+    font-weight: 500;
+}
+
+.main-heading-subinfo {
+    margin-top: 1rem;
+    max-width: 45rem;
+}
+
+.text-field {
+    display: block;
+    padding: 0.5rem 0.5rem;
+    border: 0.1rem solid var(--neutral-200);
+    border-radius: 0.2rem;
+    margin-top: 0.5rem;
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.05rem;
+}
+
+.question-heading {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.question {
+    max-width: 25rem;
+    width: 100%;
+    margin: 1rem 1rem 0 0;
+}
+
+.basic-info {
+    display: flex;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.checkbox {
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-top: 0.5rem;
+}

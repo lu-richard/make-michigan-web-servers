@@ -1,0 +1,55 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--navy-blue);
+}
+
+.card {
+    padding: 3rem;
+    background-color: var(--main-bg-color);
+    border-radius: 1.5rem;
+    width: 40vw;
+}
+
+.question {
+    margin: 1.5rem 0;
+    font-size: 1.2rem;
+}
+
+.text-field {
+    font-family: inherit;
+    padding: 0.25rem;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 0.35rem;
+}
+
+.submit-button {
+    background-color: var(--arb-blue);
+    font-family: inherit;
+    padding: 0.75rem 1.25rem;
+    border-radius: 1.25rem;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #336eb6;
+}
+
+.submit-button:active {
+    background-color: #2b5c97;
+}
+
+.error-message {
+    color: rgb(185, 0, 0);
+    margin: 1rem 0 1.5rem 0;
+}
+
+.redirect {
+    font-style: italic;
+}

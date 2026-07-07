@@ -1,0 +1,48 @@
+.container {
+    padding: 2rem 4rem;
+    height: 83vh;
+}
+
+.top-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.name {
+    font-size: 2.5rem;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.email {
+    /* font-weight: 500; */
+    margin-top: 1rem;
+    font-size: 1.4rem;
+}
+
+.profile-photo {
+    width: 30rem;
+    clip-path: circle(35%);
+}
+
+.pronouns {
+    font-weight: 300;
+    font-size: 1.4rem;
+    margin-top: 0.2rem;
+}
+
+.tags {
+    margin-top: 2.5rem;
+    display: flex;
+}
+
+.tag {
+    padding: 0.5em 1.25rem;
+    border: 0.1rem solid var(--neutral-300);
+    border-radius: 1.5rem;
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+

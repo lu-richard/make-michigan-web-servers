@@ -1,0 +1,246 @@
+/* Main container for the entire data table */
+.datatable {
+  /* White background with subtle border and rounded corners */
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  /* Remove default margin and add shadow for depth */
+  margin: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* Use system fonts for better readability */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1f2937;
+  overflow: hidden;
+}
+
+/* Top toolbar containing search and controls */
+.toolbar {
+  /* Arrange items in a row with space between them */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Add padding and bottom border */
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+  gap: 12px;
+}
+
+/* Left side of toolbar (search and result count) */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Search input field */
+.search {
+  /* Style the input field */
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  min-width: 200px;
+  font-size: 14px;
+}
+
+/* When user clicks in search field, highlight it */
+.search:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Text showing number of results */
+.resultCount {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Right side of toolbar */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Label for rows per page selector */
+.rowsLabel {
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Container for the scrollable table */
+.tableWrap {
+  /* Allow horizontal scrolling if table is too wide */
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* The actual HTML table */
+.table {
+  width: 100%;
+  /* Remove spacing between table cells */
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+/* Table header cells */
+.table thead th {
+  /* Align text to the left */
+  text-align: left;
+  padding: 12px 16px;
+  /* Light gray background for headers */
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+  color: #374151;
+  font-weight: 600;
+  /* Stick to top when scrolling */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Container for header content (text + sort icon) */
+.thContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Headers that can be clicked to sort */
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.sortable:hover {
+  background: #f1f5f9;
+}
+
+/* Sort direction indicator (▲ ▼ ↕) */
+.sortIcon {
+  font-size: 12px;
+  color: #6b7280;
+  min-width: 12px;
+}
+
+/* Table body cells */
+.table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+
+/* Alternate row colors for easier reading */
+.table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.table tbody tr:hover {
+  background: #f3f4f6;
+}
+
+/* Empty state when no data */
+.empty {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Bottom pagination section */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+/* Pagination buttons (Prev/Next) */
+.pButton {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.pButton:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.pButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Pagination info text */
+.pageInfo {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Loading spinner */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  color: #6b7280;
+}
+
+/* Error message styling */
+.error {
+  padding: 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  margin: 16px;
+}
+
+/* Status badges for credential status */
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.statusActive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusExpired {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.statusRevoked {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.statusSuperseded {
+  background: #e0e7ff;
+  color: #3730a3;
+}

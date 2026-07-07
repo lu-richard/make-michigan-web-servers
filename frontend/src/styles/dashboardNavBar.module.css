@@ -1,0 +1,43 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+    background-color: #fff;
+    box-shadow: 0 4px 8px 0 rgba(33, 43, 54, 0.04);
+    height: 64px; /* Set a fixed height for the navbar */
+}
+
+.tabs {
+    display: flex;
+    height: 100%;
+}
+
+.tab {
+    text-decoration: none;
+    color: #6A7282;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+.tab::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.active {
+    color: #00274C;
+}
+
+.active::after {
+    background: #00274C;
+}

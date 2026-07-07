@@ -1,0 +1,35 @@
+# ── Environment variables (secrets — never commit these) ──
+.env
+.env.local
+.env.production
+.env.*.local
+**/.env
+**/.env.local
+**/.env.production
+
+# ── Python / Django (backend) ──
+.venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+backend/staticfiles/
+db.sqlite3
+
+# ── Node / React / Vite (frontend) ──
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+*.local
+
+# ── Docker ──
+*.log
+
+# ── OS / editor junk ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

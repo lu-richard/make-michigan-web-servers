@@ -1,0 +1,72 @@
+.container {
+    padding: 2rem 7rem;
+}
+
+.main-heading {
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.student-name {
+    font-size: 3rem;
+    margin-top: 3rem;
+}
+
+.column-names {
+    display: flex;
+    align-items: center;
+    margin: 3rem 0 1rem 0;
+}
+
+.column-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-right: 10rem;
+    text-wrap: nowrap;
+}
+
+.roles {
+    display: flex;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.role {
+    padding: 0.5rem 1rem;
+    border-radius: 1.2rem;
+    border: 0.1rem solid var(--neutral-200);
+    margin-right: 0.75rem;
+}
+
+.modify-or-revoke {
+    position: absolute;
+    left: 82rem;
+    color: var(--navy-blue);
+    border-color: var(--navy-blue);
+}
+
+.search-bar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 75vw;
+    margin-top: 1.5rem;
+    padding: 0 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #000;
+    margin-top: 2.5rem;
+}
+
+.text-field {
+    width: 100%;
+    border: none;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 1rem 0.5rem;
+}
+
+.no-results-message {
+    text-align: center;
+    font-size: 1.3rem;
+    margin: 5rem 0 19rem 0;
+}

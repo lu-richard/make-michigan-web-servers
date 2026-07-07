@@ -1,0 +1,75 @@
+.report-card {
+    padding: 2rem;
+    border: 0.1rem solid var(--neutral-200);
+    border-radius: 1rem;
+    max-width: 60rem;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.top-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.issue-type {
+    font-size: 1rem;
+    padding: 0.5rem 1.3rem;
+    border-radius: 1.2rem;
+    border: 0.1rem solid var(--neutral-200);
+    display: inline-block;
+    text-align: center;
+}
+
+.bottom-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.bottom-info-blurb:nth-child(2) {
+    margin-right: 17rem;
+}
+
+.bottom-info-blurb {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bottom-info-blurb p {
+    margin-inline: 0.5rem;
+}
+
+.view-request {
+    font-weight: 600;
+}
+
+.resolved {
+    padding: 0.5rem 1.3rem;
+    background-color: rgb(0, 173, 58, 0.1);
+    border: 0.1rem solid #00AD3A;
+}
+
+.unresolved {
+    padding: 0.5rem 1.3rem;
+    background-color: rgb(209, 23, 23, 0.1);
+    border: 0.1rem solid #d11717;
+}
+
+.is-resolved {
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.is-resolved-text {
+    margin-right: 0.3rem;
+}
