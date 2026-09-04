@@ -7,6 +7,8 @@ import Navbar from '../components/Navbar';
 import supabase from '../lib/supabase';
 import styles from '../styles/app.module.css';
 
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // // Custom, reusable hook for fetching all data from Supabase necessary for UI
 // const useAllData = () => {
 //   const [makerspaces, setMakerspaces] = useState<MakerspacesById>({});
@@ -85,11 +87,13 @@ function App() {
     const fetchProfile = async (s: Session | null) => {
       try {
         if (s) {
-          const { data, error } = await supabase.from('profiles').select('user_id, uniqname, first_name, middle_initial, last_name, image_url, pronouns, roles, system_theme, is_grad_student, locale').eq('user_id', s.user.id).single();
+          const response = await fetch(`${VITE_API_BASE_URL}/profiles/${s.user.id}/`);
 
-          if (error) {
-            throw new Error(error.message);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch profile: ${response.status}`);
           }
+
+          const data = await response.json();
 
           setProfile(data);
         }

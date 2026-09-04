@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import supabase from '../lib/supabase'
 import DashboardNavBar from '../components/DashboardNavBar'
 import Sidebar from '../components/SkillTreeSidebar'
-import { useAppContext } from '../context/AppContext' 
+import { useAppContext } from '../context/AppContext'
 import type { MakerspaceCardData, MakerspaceCreds, TrainingPrerequisites, CredentialModelLink } from '../types/types'
 import { Outlet } from 'react-router-dom'
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 /**
  * Fetch makerspace_credential_models rows for a makerspace.
@@ -12,11 +13,16 @@ import { Outlet } from 'react-router-dom'
 export async function fetchMakerspaceCredRows(
   makerspaceId: string
 ): Promise<{ data: MakerspaceCreds[] | null; error: any }> {
-  const { data, error } = await supabase
-    .from('makerspace_credential_models')
-    .select('*')
-    .eq('makerspace_id', makerspaceId)
-  return { data: (data as MakerspaceCreds[]) ?? null, error }
+  try {
+    const response = await fetch(`${VITE_API_BASE_URL}/makerspace-credential-models/?makerspace_id=${makerspaceId}`)
+    if (!response.ok) {
+      return { data: null, error: new Error(`Failed to fetch makerspace credentials: ${response.status}`) }
+    }
+    const data = await response.json()
+    return { data: (data as MakerspaceCreds[]) ?? null, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
 }
 
 /**
@@ -26,11 +32,16 @@ export async function fetchCredentialModelsByIds(
   ids: string[]
 ): Promise<{ data: CredentialModelLink[] | null; error: any }> {
   if (!ids || ids.length === 0) return { data: [], error: null }
-  const { data, error } = await supabase
-    .from('credential_models')
-    .select('credential_model_id, credential_model_name')
-    .in('credential_model_id', ids)
-  return { data: (data as CredentialModelLink[]) ?? null, error }
+  try {
+    const response = await fetch(`${VITE_API_BASE_URL}/credential-models/?credential_model_id__in=${ids.join(',')}`)
+    if (!response.ok) {
+      return { data: null, error: new Error(`Failed to fetch credential models: ${response.status}`) }
+    }
+    const data = await response.json()
+    return { data: (data as CredentialModelLink[]) ?? null, error: null }
+  } catch (error) {
+    return { data: null, error }
+  }
 }
 
 /**
@@ -46,14 +57,16 @@ export async function fetchPrereqsForDependentModels(dependentIds: string[]): Pr
     return { prereqMap: {}, error: null }
   }
 
-  const { data: prereqRows, error: prereqErr } = await supabase
-    .from('credential_model_prerequisites')
-    .select('*')
-    .in('dependent_credential_model_id', dependentIds)
-
-  if (prereqErr) return { prereqMap: {}, error: prereqErr }
-
-  const rows = (prereqRows as TrainingPrerequisites[]) ?? []
+  let rows: TrainingPrerequisites[]
+  try {
+    const response = await fetch(`${VITE_API_BASE_URL}/credential-model-prereqs/?dependent_credential_model_id__in=${dependentIds.join(',')}`)
+    if (!response.ok) {
+      return { prereqMap: {}, error: new Error(`Failed to fetch prerequisites: ${response.status}`) }
+    }
+    rows = await response.json()
+  } catch (error) {
+    return { prereqMap: {}, error }
+  }
 
   const map: Record<string, Set<string>> = {}
   for (const r of rows) {
@@ -64,14 +77,11 @@ export async function fetchPrereqsForDependentModels(dependentIds: string[]): Pr
   }
 
   const allPrereqIds = Array.from(new Set(rows.map((r) => r.prerequisite_credential_model_id)))
-  const { data: prereqModels, error: modelsErr } = await supabase
-    .from('credential_models')
-    .select('credential_model_id, credential_model_name')
-    .in('credential_model_id', allPrereqIds.length ? allPrereqIds : [''])
+  const { data: prereqModels, error: modelsErr } = await fetchCredentialModelsByIds(allPrereqIds)
 
   if (modelsErr) return { prereqMap: {}, error: modelsErr }
 
-  const prereqModelsArr = (prereqModels as CredentialModelLink[]) ?? []
+  const prereqModelsArr = prereqModels ?? []
 
   const prereqMap: Record<string, { prerequisite_ids: string[]; prerequisite_models: CredentialModelLink[] }> = {}
   for (const depId of Object.keys(map)) {
@@ -111,14 +121,12 @@ export default function SkillTree() {
 
     const loadCompleted = async () => {
       try {
-        const { data, error } = await supabase
-          .schema('private')
-          .from('credential_summary')
-          .select('credential_model_id')
-          .eq('recipient_user_id', profile!['user_id'])
+        const response = await fetch(`${VITE_API_BASE_URL}/credential-summary/?recipient_user_id=${profile!['user_id']}`)
         if (!mounted) return
-        if (!error && Array.isArray(data)) {
-          const ids = new Set((data as any[]).map((r) => String(r.credential_model_id)))
+        if (response.ok) {
+          const json = await response.json()
+          const rows = json.results ?? json
+          const ids = new Set((rows as any[]).map((r) => String(r.credential_model_id)))
           setCompletedModelIds(ids)
         } else {
           setCompletedModelIds(new Set())

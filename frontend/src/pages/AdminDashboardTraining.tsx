@@ -2,9 +2,10 @@ import styles from '../styles/adminDashboardTraining.module.css';
 import { useState, useEffect } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import type { ProfileData } from '../types/types';
-import supabase from '../lib/supabase';
 import Loading from './Loading';
 import AdminProfileListItem from '../components/AdminProfileListItem';
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useAdminDashboardTrainingData = () => {
     const [profiles, setProfiles] = useState<ProfileData[]>([]);
@@ -25,19 +26,21 @@ const useAdminDashboardTrainingData = () => {
             try {
                 setLoading(true);
 
-                let query = supabase.from('profiles').select('user_id, first_name, last_name, uniqname, roles');
+                const params = new URLSearchParams({ ordering: 'first_name', page: '1', page_size: String(searchLimit) });
 
                 if (debouncedSearchValue !== "") {
-                    query.eq('uniqname', debouncedSearchValue);
+                    params.set('uniqname', debouncedSearchValue);
                 }
 
-                const { data, error } = await query.order('first_name', { ascending: true }).limit(searchLimit);
+                const response = await fetch(`${VITE_API_BASE_URL}/profiles/?${params.toString()}`);
 
-                if (error) {
-                    throw new Error(error.message);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch profiles: ${response.status}`);
                 }
 
-                setProfiles(data);
+                const data = await response.json();
+
+                setProfiles(data.results ?? data);
             }
             catch (e) {
                 console.error((e as Error).message);

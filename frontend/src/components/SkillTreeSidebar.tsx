@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import supabase from '../lib/supabase'
 import type { MakerspaceCardData } from '../types/types'
 import labels from '../constants/labels'
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 interface Props {
   // if callers supply makerspaces, the component will use that instead of fetching
@@ -35,17 +36,17 @@ export default function Sidebar({ makerspaces: propsMakerspaces, onSelect, class
       setLoading(true)
       setError(null)
       try {
-        let q = supabase.schema('private').from('view_makerspace_cards').select('*')
+        const params = new URLSearchParams({ ordering: 'makerspace_name' })
         if (debouncedQuery) {
-          q = q.textSearch('fts', debouncedQuery, { type: 'websearch', config: 'english' })
+          params.set('search', debouncedQuery)
         }
-        q = q.order('makerspace_name', { ascending: true }).limit(100)
-        const { data, error: err } = await q
+        const response = await fetch(`${VITE_API_BASE_URL}/view-makerspace-cards/?${params.toString()}`)
         if (!mounted) return
-        if (err) {
-          setError(String((err as any).message ?? err))
+        if (!response.ok) {
+          setError(`Failed to fetch makerspaces: ${response.status}`)
           setRemoteMakerspaces([])
         } else {
+          const data = await response.json()
           setRemoteMakerspaces((data as MakerspaceCardData[]) ?? [])
         }
       } catch (e: any) {

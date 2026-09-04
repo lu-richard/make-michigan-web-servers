@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import type { AdminCredential, ProfileData } from "../types/types";
-import supabase from "../lib/supabase";
 import Loading from "./Loading";
 import styles from '../styles/adminProfileDetail.module.css';
 import AdminCredentialListItem from "../components/AdminCredentialListItem";
 import labels from "../constants/labels";
 import SearchIcon from '@mui/icons-material/Search';
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useAdminProfileDetailData = () => {
     const { id } = useParams();
@@ -24,23 +25,32 @@ const useAdminProfileDetailData = () => {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const { data, error } = await supabase.from('profiles').select('user_id, uniqname, first_name, middle_initial, last_name, roles').eq('user_id', id!).maybeSingle();
+            const response = await fetch(`${VITE_API_BASE_URL}/profiles/${id}/`);
 
-            if (error) {
-                throw new Error(error.message);
+            if (response.status === 404) {
+                setProfile(null);
+                return;
             }
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch profile: ${response.status}`);
+            }
+
+            const data = await response.json();
 
             setProfile(data);
         };
 
         const fetchCredentials = async () => {
-            const { data, error } = await supabase.from('view_credentials_admin').select().eq('recipient_user_id', id!);
+            const response = await fetch(`${VITE_API_BASE_URL}/view-credentials-admin/?recipient_user_id=${id}`);
 
-            if (error) {
-                throw new Error(error.message);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch credentials: ${response.status}`);
             }
 
-            setCredentials(data);
+            const data = await response.json();
+
+            setCredentials(data.results ?? data);
         }
 
         const fetchAdminProfile = async () => {

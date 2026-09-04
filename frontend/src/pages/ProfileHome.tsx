@@ -11,6 +11,8 @@ import ProfileCertifications from "./ProfileCertifications";
 
 void React
 
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const useProfileHomeData = () => {
     const { id } = useParams();
     const { profile: currUserProfile } = useAppContext();
@@ -23,11 +25,18 @@ const useProfileHomeData = () => {
             try {
                 setLoading(true);
 
-                const { data, error } = await supabase.from('profiles').select('user_id, uniqname, first_name, middle_initial, last_name, image_url, pronouns, roles, system_theme, is_grad_student, locale').eq('user_id', id!).maybeSingle();
+                const response = await fetch(`${VITE_API_BASE_URL}/profiles/${id}/`);
 
-                if (error) {
-                    throw new Error(error.message);
+                if (response.status === 404) {
+                    setProfile(null);
+                    return;
                 }
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch profile: ${response.status}`);
+                }
+
+                const data = await response.json();
 
                 setProfile(data);
             }

@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAppContext } from "../context/AppContext";
-import supabase from "../lib/supabase";
 // import styles from "../styles/dataTable.module.css";
 import DashboardNavBar from "../components/DashboardNavBar";
 import type { CertificateData } from "../types/types";
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // This type helps us sort our data
 type SortDirection = "asc" | "desc" | null;
@@ -39,7 +40,7 @@ export default function MyTrainings() {
     // We use this flag to prevent updating state if the component unmounts
     let isMounted = true;
 
-    // Function to fetch credentials from Supabase
+    // Function to fetch credentials from Django
     const fetchCredentials = async () => {
       // If no user is logged in, don't fetch anything - A user can't access this page unless they are already logged in
       // if (!session?.user?.id) {
@@ -52,24 +53,19 @@ export default function MyTrainings() {
 
       try {
 
-        // Query Supabase for credentials belonging to the current user
-        const { data, error: queryError } = await supabase
-          .schema("private")
-          .from("credential_summary") // Remove the generic type parameter, just use the table name
-          .select("*") // Get all columns
-          .eq("recipient_user_id", profile!["user_id"]) // Only get rows where recipient_user_id matches current user
-          .order("completion_date", { ascending: false }); // Sort by completion date, newest first
+        // Query Django for credentials belonging to the current user
+        const params = new URLSearchParams({ recipient_user_id: profile!["user_id"], ordering: "-completion_date" });
+        const response = await fetch(`${VITE_API_BASE_URL}/credential-summary/?${params.toString()}`);
 
-          setCredentials((data || []) as unknown as CertificateData[]);
-        // If there was an error with the query, throw it
-        if (queryError) {
-          console.error("Supabase query error:", queryError);
-          throw queryError;
+        if (!response.ok) {
+          throw new Error(`Failed to fetch credentials: ${response.status}`);
         }
+
+        const json = await response.json();
+        const data = json.results ?? json;
 
         // Only update state if component is still mounted
         if (isMounted) {
-          // Convert the Supabase data to our CertificateData type
           setCredentials((data || []) as unknown as CertificateData[]);
         }
       } catch (err: any) {

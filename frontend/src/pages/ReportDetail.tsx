@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import supabase from "../lib/supabase";
 import Loading from "./Loading";
 import type { IssueReportCardData } from "../types/types";
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useReportDetailData = () => {
     const { id } = useParams();
@@ -16,11 +17,18 @@ const useReportDetailData = () => {
     useEffect(() => {
         const fetchReport = async () => {
             try {
-                const { data, error } = await supabase.from("view_issue_report_cards").select().eq("issue_report_id", id!).maybeSingle();
+                const response = await fetch(`${VITE_API_BASE_URL}/view-issue-report-cards/${id}/`);
 
-                if (error) {
-                    throw new Error(error.message);
+                if (response.status === 404) {
+                    setReport(null);
+                    return;
                 }
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch report: ${response.status}`);
+                }
+
+                const data = await response.json();
 
                 setReport(data);
             }

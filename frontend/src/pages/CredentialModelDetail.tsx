@@ -19,7 +19,7 @@ const useCredentialModelDetailData = () => {
         if (!selectedMakerspace) {
             const fetchSelectedMakerspace = async () => {
                 try {
-                    const response = await fetch(`${VITE_API_BASE_URL}/view-makerspace-cards/?makerspace_id=${makerspaceId!}`);
+                    const response = await fetch(`${VITE_API_BASE_URL}/view-makerspace-cards/${makerspaceId!}/`);
 
                     if (!response.ok) {
                         throw new Error(`Response status: ${response.status}`);
@@ -46,7 +46,7 @@ const useCredentialModelDetailData = () => {
         // const credentialModelQuery = supabase.from('credential_models').select().eq('credential_model_id', credModelId!).maybeSingle();
         // const unlockedEquipmentQuery = supabase.from('equipment').select('equipment_id, equipment_name').eq('credential_model_id', credModelId!);
 
-        const credentialModelQuery = `${VITE_API_BASE_URL}/credential-models/?credential_model_id=${credModelId!}`;
+        const credentialModelQuery = `${VITE_API_BASE_URL}/credential-models/${credModelId!}/`;
         const unlockedEquipmentQuery = `${VITE_API_BASE_URL}/equipment/?credential_model_id=${credModelId!}`;
         
         const fetchCredentialModelDetailData = async () => {
