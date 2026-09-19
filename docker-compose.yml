@@ -1,12 +1,14 @@
 services:
   backend:
     build: ./backend
+    restart: always
     expose:
       - "80"
     env_file: ./backend/.env
 
   frontend:
     build: ./frontend
+    restart: always
     ports:
       - "80:80"
     depends_on:
