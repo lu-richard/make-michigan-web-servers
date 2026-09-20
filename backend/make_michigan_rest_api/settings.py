@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.postgres',
     'rest_framework',
     'core',
     'corsheaders',
@@ -79,6 +78,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'make_michigan_rest_api.wsgi.application'
+
+AUTH_USER_MODEL = 'core.User'
 
 # Basic burst throttling rates
 

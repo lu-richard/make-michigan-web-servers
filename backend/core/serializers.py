@@ -3,39 +3,15 @@ from core.models import *
 
 # Standard Table Serializers
 
-class ProfileSerializer(serializers.ModelSerializer):
-    roles = serializers.SerializerMethodField()
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Profiles
-        fields = '__all__'
-    
-    def get_roles(self, obj):
-        if not obj.roles:
-            return []
-        
-        cleaned = obj.roles.strip('{}')
-        if not cleaned:
-            return []
-
-        return [role.strip() for role in cleaned.split(',')]
+        model = User
+        fields = ['user_id', 'uniqname', 'first_name', 'middle_initial', 'last_name', 'image_url', 'pronouns', 'roles', 'created_at', 'system_theme', 'is_grad_student', 'locale', 'is_active', 'is_staff']
 
 class MakerspaceSerializer(serializers.ModelSerializer):
-    themes = serializers.SerializerMethodField()
-
     class Meta:
-        model = Makerspaces
+        model = Makerspace
         fields = '__all__'
-    
-    def get_themes(self, obj):
-        if not obj.themes:
-            return []
-        
-        cleaned = obj.themes.strip('{}')
-        if not cleaned:
-            return []
-
-        return [theme.strip() for theme in cleaned.split(',')]
 
 class EquipmentSerializer(serializers.ModelSerializer):
     equipment_model_id = serializers.UUIDField()
@@ -44,11 +20,11 @@ class EquipmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['equipment_id', 'equipment_name', 'equipment_status', 'materials', 'restricted_materials', 'in_situ_image_url', 'created_at', 'last_serviced', 'equipment_model_id', 'makerspace_id', 'last_updated', 'credential_model_id', 'specific_specs', 'notes']
+        fields = ['equipment_id', 'equipment_name', 'equipment_status', 'in_situ_image_url', 'created_at', 'last_serviced', 'equipment_model_id', 'makerspace_id', 'last_updated', 'credential_model_id', 'specific_specs', 'notes']
 
 class EquipmentModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = EquipmentModels
+        model = EquipmentModel
         fields = '__all__'
 
 class CredentialSerializer(serializers.ModelSerializer):
@@ -58,12 +34,12 @@ class CredentialSerializer(serializers.ModelSerializer):
     credential_model_id = serializers.UUIDField()
 
     class Meta:
-        model = Credentials
+        model = Credential
         fields = ['credential_id', 'credential_status', 'recipient_user_id', 'author_user_id', 'completion_date', 'expiration_date', 'issuing_makerspace_id', 'created_at', 'last_updated', 'credential_model_id']
 
 class CredentialModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CredentialModels
+        model = CredentialModel
         fields = '__all__'
 
 class CredentialModelPrerequisiteSerializer(serializers.ModelSerializer):
@@ -71,7 +47,7 @@ class CredentialModelPrerequisiteSerializer(serializers.ModelSerializer):
     dependent_credential_model_id = serializers.UUIDField()
 
     class Meta:
-        model = CredentialModelPrerequisites
+        model = CredentialModelPrerequisite
         fields = ['prerequisite_credential_model_id', 'dependent_credential_model_id', 'created_at', 'last_updated']
 
 class MakerspaceCredentialModelSerializer(serializers.ModelSerializer):
@@ -79,14 +55,56 @@ class MakerspaceCredentialModelSerializer(serializers.ModelSerializer):
     credential_model_id = serializers.UUIDField()
 
     class Meta:
-        model = MakerspaceCredentialModels
+        model = MakerspaceCredentialModel
         fields = ['makerspace_id', 'credential_model_id', 'created_at', 'last_updated']
+
+class MakerspaceStaffSerializer(serializers.ModelSerializer):
+    makerspace_id = serializers.UUIDField()
+    user_id = serializers.UUIDField()
+
+    class Meta:
+        model = MakerspaceStaff
+        fields = ['makerspace_id', 'user_id']
+
+class CapabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Capability
+        fields = '__all__'
+
+class MaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Material
+        fields = '__all__'
+
+class EquipmentModelCapabilitySerializer(serializers.ModelSerializer):
+    equipment_model_id = serializers.UUIDField()
+    capability_id = serializers.UUIDField()
+
+    class Meta:
+        model = EquipmentModelCapability
+        fields = ['equipment_model_id', 'capability_id']
+
+class EquipmentAcceptedMaterialSerializer(serializers.ModelSerializer):
+    equipment_id = serializers.UUIDField()
+    material_id = serializers.UUIDField()
+
+    class Meta:
+        model = EquipmentAcceptedMaterial
+        fields = ['equipment_id', 'material_id']
+
+class EquipmentRestrictedMaterialSerializer(serializers.ModelSerializer):
+    equipment_id = serializers.UUIDField()
+    material_id = serializers.UUIDField()
+
+    class Meta:
+        model = EquipmentRestrictedMaterial
+        fields = ['equipment_id', 'material_id']
 
 class PostSerializer(serializers.ModelSerializer):
     user_id = serializers.UUIDField()
 
     class Meta:
-        model = Posts
+        model = Post
         fields = ['post_id', 'created_at', 'last_updated', 'content', 'title', 'post_image_urls', 'user_id']
 
 class IssueReportSerializer(serializers.ModelSerializer):
@@ -95,7 +113,7 @@ class IssueReportSerializer(serializers.ModelSerializer):
     overseer_user_id = serializers.UUIDField(required=False, allow_null=True)
 
     class Meta:
-        model = IssueReports
+        model = IssueReport
         fields = ['issue_report_id', 'created_at', 'last_updated', 'reporter_user_id', 'issue_type', 'description', 'is_resolved', 'equipment_id', 'overseer_user_id', 'title']
 
 class OperationalDataSerializer(serializers.ModelSerializer):
@@ -127,28 +145,15 @@ class ViewEquipmentDetailPagesSerializer(serializers.ModelSerializer):
         model = ViewEquipmentDetailPages
         fields = '__all__'
 
-
 class ViewIssueReportCardsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ViewIssueReportCards
         fields = '__all__'
 
 class ViewMakerspaceDetailPagesSerializer(serializers.ModelSerializer):
-    themes = serializers.SerializerMethodField()
-
     class Meta:
         model = ViewMakerspaceDetailPages
         fields = '__all__'
-
-    def get_themes(self, obj):
-        if not obj.themes:
-            return []
-
-        cleaned = obj.themes.strip('{}')
-        if not cleaned:
-            return []
-
-        return [theme.strip() for theme in cleaned.split(',')]
 
 # SQL Materialized View Serializers
 
@@ -163,20 +168,6 @@ class ViewEquipmentCardsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ViewMakerspaceCardsSerializer(serializers.ModelSerializer):
-    themes = serializers.SerializerMethodField()
-
     class Meta:
         model = ViewMakerspaceCards
         fields = '__all__'
-    
-    def get_themes(self, obj):
-        if not obj.themes:
-            return []
-        
-        cleaned = obj.themes.strip('{}')
-        if not cleaned:
-            return []
-
-        return [theme.strip() for theme in cleaned.split(',')]
-
-

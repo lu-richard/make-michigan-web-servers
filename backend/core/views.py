@@ -1,7 +1,5 @@
-from django.contrib.auth.models import *
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters import rest_framework as django_filters
 
 from .serializers import *
@@ -22,14 +20,14 @@ class CredentialModelFilter(django_filters.FilterSet):
     credential_model_id__in = UUIDInFilter(field_name='credential_model_id')
 
     class Meta:
-        model = CredentialModels
+        model = CredentialModel
         fields = ['credential_model_id']
 
 class CredentialModelPrerequisiteFilter(django_filters.FilterSet):
     dependent_credential_model_id__in = UUIDInFilter(field_name='dependent_credential_model_id')
 
     class Meta:
-        model = CredentialModelPrerequisites
+        model = CredentialModelPrerequisite
         fields = ['dependent_credential_model_id']
 
 # SQL View ViewSets
@@ -87,19 +85,18 @@ class ViewMakerspaceCardsViewSet(viewsets.ModelViewSet):
     filterset_fields = ['makerspace_id']
     search_fields = ['makerspace_name', 'building', 'rooms', 'description', 'themes']
     ordering_fields = ['makerspace_name', 'building']
-    
 
 # Standard Table ViewSets
 
-class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profiles.objects.all().order_by('user_id')
-    serializer_class = ProfileSerializer
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('user_id')
+    serializer_class = UserSerializer
     pagination_class = StandardResultsSetPagination
     filterset_fields = ['uniqname']
     # permission_classes = [permissions.isAuthenticated]
 
 class MakerspaceViewSet(viewsets.ModelViewSet):
-    queryset = Makerspaces.objects.all()
+    queryset = Makerspace.objects.all()
     serializer_class = MakerspaceSerializer
 
 class EquipmentViewSet(viewsets.ModelViewSet):
@@ -108,38 +105,66 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     filterset_fields = ['credential_model_id']
 
 class EquipmentModelViewSet(viewsets.ModelViewSet):
-    queryset = EquipmentModels.objects.all()
+    queryset = EquipmentModel.objects.all()
     serializer_class = EquipmentModelSerializer
 
 class CredentialViewSet(viewsets.ModelViewSet):
-    queryset = Credentials.objects.all().order_by('credential_id')
+    queryset = Credential.objects.all().order_by('credential_id')
     serializer_class = CredentialSerializer
     pagination_class = StandardResultsSetPagination
 
 class CredentialModelViewSet(viewsets.ModelViewSet):
-    queryset = CredentialModels.objects.all()
+    queryset = CredentialModel.objects.all()
     serializer_class = CredentialModelSerializer
     filterset_class = CredentialModelFilter
 
 class MakerspaceCredentialModelViewSet(viewsets.ModelViewSet):
-    queryset = MakerspaceCredentialModels.objects.all()
+    queryset = MakerspaceCredentialModel.objects.all()
     serializer_class = MakerspaceCredentialModelSerializer
     filterset_fields = ['makerspace_id', 'credential_model_id']
     ordering_fields = ['created_at', 'last_updated']
 
 class CredentialModelPrerequisiteViewSet(viewsets.ModelViewSet):
-    queryset = CredentialModelPrerequisites.objects.all()
+    queryset = CredentialModelPrerequisite.objects.all()
     serializer_class = CredentialModelPrerequisiteSerializer
     filterset_class = CredentialModelPrerequisiteFilter
     ordering_fields = ['created_at', 'last_updated']
 
+class MakerspaceStaffViewSet(viewsets.ModelViewSet):
+    queryset = MakerspaceStaff.objects.all()
+    serializer_class = MakerspaceStaffSerializer
+    filterset_fields = ['makerspace_id', 'user_id']
+
+class CapabilityViewSet(viewsets.ModelViewSet):
+    queryset = Capability.objects.all()
+    serializer_class = CapabilitySerializer
+
+class MaterialViewSet(viewsets.ModelViewSet):
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
+
+class EquipmentModelCapabilityViewSet(viewsets.ModelViewSet):
+    queryset = EquipmentModelCapability.objects.all()
+    serializer_class = EquipmentModelCapabilitySerializer
+    filterset_fields = ['equipment_model_id', 'capability_id']
+
+class EquipmentAcceptedMaterialViewSet(viewsets.ModelViewSet):
+    queryset = EquipmentAcceptedMaterial.objects.all()
+    serializer_class = EquipmentAcceptedMaterialSerializer
+    filterset_fields = ['equipment_id', 'material_id']
+
+class EquipmentRestrictedMaterialViewSet(viewsets.ModelViewSet):
+    queryset = EquipmentRestrictedMaterial.objects.all()
+    serializer_class = EquipmentRestrictedMaterialSerializer
+    filterset_fields = ['equipment_id', 'material_id']
+
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Posts.objects.all().order_by('post_id')
+    queryset = Post.objects.all().order_by('post_id')
     serializer_class = PostSerializer
     pagination_class = StandardResultsSetPagination
 
 class IssueReportViewSet(viewsets.ModelViewSet):
-    queryset = IssueReports.objects.all().order_by('issue_report_id')
+    queryset = IssueReport.objects.all().order_by('issue_report_id')
     serializer_class = IssueReportSerializer
     pagination_class = StandardResultsSetPagination
 

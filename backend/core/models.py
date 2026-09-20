@@ -1,16 +1,12 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
+import uuid
+
+from django.conf import settings
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 
 # Enums
-
-from django.db import models
 
 class CredentialType(models.TextChoices):
     SAFETY = "safety", "safety"
@@ -36,7 +32,7 @@ class MakerspaceStatus(models.TextChoices):
     CLOSED = "closed", "closed"
     RESERVED = "reserved", "reserved"
     SOFT_OPEN = "soft_open", "soft_open"
-    
+
 class MakerspaceTheme(models.TextChoices):
     ELECTRONICS = "electronics", "electronics"
     THREE_D_PRINTING = "3d_printing", "3d_printing"
@@ -76,205 +72,266 @@ class Locale(models.TextChoices):
     PT_PT = "pt_PT", "pt_PT"
     RU_RU = "ru_RU", "ru_RU"
 
-# Standard Tables
+# Validators
 
-class CredentialModelPrerequisites(models.Model):
-    pk = models.CompositePrimaryKey('prerequisite_credential_model_id', 'dependent_credential_model_id')
-    prerequisite_credential_model = models.ForeignKey('CredentialModels', models.DO_NOTHING, db_comment='ID foreign key of the credential model that is a prerequisite. Part of composite primary key')
-    dependent_credential_model = models.ForeignKey('CredentialModels', models.DO_NOTHING, related_name='credentialmodelprerequisites_dependent_credential_model_set', db_comment='ID foreign key of the credential model that has a prerequisite. Part of composite primary key')
-    created_at = models.DateTimeField()
-    last_updated = models.DateTimeField(db_comment='Timestamp at which this credential model prerequisites row was last updated')
+def validate_roles(value):
+    if not value:
+        return
+    invalid = [v for v in value if v not in Role.values]
+    if invalid:
+        raise ValidationError(f"Invalid role(s): {invalid}")
+
+def validate_themes(value):
+    if not value:
+        return
+    invalid = [v for v in value if v not in MakerspaceTheme.values]
+    if invalid:
+        raise ValidationError(f"Invalid theme(s): {invalid}")
+
+def validate_phone_length(value):
+    if len(value) != 10:
+        raise ValidationError("contact_phone must be exactly 10 characters")
+
+# User
+
+class UserManager(BaseUserManager):
+    def create_user(self, uniqname, **extra_fields):
+        if not uniqname:
+            raise ValueError("Users must have a uniqname")
+        user = self.model(uniqname=uniqname, **extra_fields)
+        user.set_unusable_password()
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, uniqname, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        return self.create_user(uniqname, **extra_fields)
+
+class User(AbstractBaseUser, PermissionsMixin):
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uniqname = models.CharField(max_length=8, unique=True)
+    first_name = models.CharField(max_length=100)
+    middle_initial = models.CharField(max_length=1, blank=True, null=True)
+    last_name = models.CharField(max_length=100)
+    image_url = models.TextField(blank=True, null=True)
+    pronouns = models.CharField(max_length=50, blank=True, null=True)
+    roles = models.JSONField(default=list, blank=True, validators=[validate_roles])
+    created_at = models.DateTimeField(auto_now_add=True)
+    system_theme = models.CharField(max_length=10, choices=SystemTheme.choices, default=SystemTheme.LIGHT)
+    is_grad_student = models.BooleanField(default=False)
+    locale = models.CharField(max_length=10, choices=Locale.choices, default=Locale.EN_US)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = "uniqname"
+    REQUIRED_FIELDS = ["first_name", "last_name"]
 
     class Meta:
-        managed = False
-        db_table = 'credential_model_prerequisites'
-        db_table_comment = 'Junction table for storing prerequisite relationships between credential models'
+        db_table = "profiles"
 
+# Lookup tables
 
-class CredentialModels(models.Model):
-    credential_model_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the credential model')
-    credential_model_name = models.TextField(db_comment='Official name of the credential model')
-    credential_type = models.TextField(choices=CredentialType.choices, db_comment='Primary focus of the credential model (e.g. safety, equipment use validation)')
-    description = models.TextField(blank=True, null=True, db_comment='Optional description of the credential model, including core skills developed and required assignments')
-    created_at = models.DateTimeField(db_comment='Timestamp at which this credential model row was created')
-    last_updated = models.DateTimeField(db_comment='Timestamp at which this credential model row was last updated')
-
-    class Meta:
-        managed = False
-        db_table = 'credential_models'
-
-
-class Credentials(models.Model):
-    credential_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the credential instance')
-    credential_status = models.TextField(choices=CredentialStatus.choices, db_comment='Current status of the credential instance (e.g. active, pending, expired)')
-    recipient_user = models.ForeignKey('Profiles', models.DO_NOTHING, db_comment='ID foreign key of the user who received or is to receive this credential from an author user')
-    author_user = models.ForeignKey('Profiles', models.DO_NOTHING, related_name='credentials_author_user_set', db_comment='ID foreign key of the user who authored this credential for a recipient user')
-    completion_date = models.DateField(blank=True, null=True, db_comment='Date at which the recipient user officially completed this credential')
-    expiration_date = models.DateField(blank=True, null=True, db_comment='Date at which this credential expires, if applicable')
-    issuing_makerspace = models.ForeignKey('Makerspaces', models.DO_NOTHING, db_comment='ID foreign key of the makerspace that issued this credential. This is not the ID of the only makerspace that this credential is valid for')
-    created_at = models.DateTimeField()
-    last_updated = models.DateTimeField()
-    credential_model = models.ForeignKey(CredentialModels, models.DO_NOTHING, db_comment='ID foreign key of the credential model that this credential belongs to')
+class CredentialModel(models.Model):
+    credential_model_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    credential_model_name = models.CharField(max_length=255)
+    credential_type = models.CharField(max_length=20, choices=CredentialType.choices)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
-        db_table = 'credentials'
+        db_table = "credential_models"
 
+class Capability(models.Model):
+    capability_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "capabilities"
+
+class Material(models.Model):
+    material_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "materials"
+
+# Core entity tables
+
+class Makerspace(models.Model):
+    makerspace_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    makerspace_name = models.CharField(max_length=255)
+    makerspace_tier = models.CharField(max_length=10, choices=MakerspaceTier.choices, blank=True, null=True)
+    makerspace_status = models.CharField(max_length=20, choices=MakerspaceStatus.choices, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    rooms = models.JSONField(blank=True, null=True)
+    themes = models.JSONField(blank=True, null=True, validators=[validate_themes])
+    audience = models.JSONField(blank=True, null=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    contact_email = models.CharField(max_length=255)
+    contact_phone = models.CharField(max_length=10, validators=[validate_phone_length])
+    building = models.CharField(max_length=9)
+    cover_image = models.TextField(blank=True, null=True)
+    floorplan_image = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "makerspaces"
+
+class EquipmentModel(models.Model):
+    equipment_model_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    equipment_model_name = models.CharField(max_length=255)
+    make = models.CharField(max_length=255)
+    model = models.CharField(max_length=255)
+    equipment_type = models.CharField(max_length=100)
+    is_cnc = models.BooleanField()
+    specs_url = models.TextField(blank=True, null=True)
+    specific_specs = models.JSONField(blank=True, null=True)
+    manufacturer_image_urls = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "equipment_models"
 
 class Equipment(models.Model):
-    equipment_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the equipment instance')
-    equipment_name = models.TextField(db_comment='Name of the equipment instance. Can either be the official model name or the in-house nickname')
-    equipment_status = models.TextField(choices=EquipmentStatus.choices, db_comment='Current status of the equipment instance (e.g. open, in_use, closed)')
-    materials = ArrayField(models.TextField(db_comment='List of this equipmentÆs accepted materials'), blank=True, null=True)
-    restricted_materials = ArrayField(models.TextField(db_comment='List of this equipmentÆs restricted materials, if known'), blank=True, null=True)
-    in_situ_image_url = models.TextField(blank=True, null=True, db_comment='In-situ image of this equipment within its makerspace')
-    created_at = models.DateTimeField()
-    last_serviced = models.DateTimeField(blank=True, null=True, db_comment='Timestamp at which this equipment was last serviced')
-    equipment_model = models.ForeignKey('EquipmentModels', models.DO_NOTHING, db_comment='ID foreign key of the equipment model that this equipment belongs to')
-    makerspace = models.ForeignKey('Makerspaces', models.DO_NOTHING, db_comment='ID foreign key of the makerspace that this equipment belongs to')
-    last_updated = models.DateTimeField(db_comment='Timestamp at which this equipment row was last updated')
-    credential_model = models.ForeignKey(CredentialModels, models.DO_NOTHING, blank=True, null=True, db_comment='ID foreign key of the credential model that unlocks this equipment instance')
-    specific_specs = models.JSONField(blank=True, null=True, db_comment='JSONB of the attributes specific to this instance of equipment')
-    notes = models.TextField(blank=True, null=True, db_comment='Optional notes accompanying this equipment instance')
+    equipment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    equipment_name = models.CharField(max_length=255)
+    equipment_model = models.ForeignKey(EquipmentModel, on_delete=models.CASCADE)
+    makerspace = models.ForeignKey(Makerspace, on_delete=models.CASCADE)
+    credential_model = models.ForeignKey(CredentialModel, on_delete=models.SET_NULL, blank=True, null=True)
+    equipment_status = models.CharField(max_length=20, choices=EquipmentStatus.choices, blank=True, null=True)
+    in_situ_image_url = models.TextField(blank=True, null=True)
+    specific_specs = models.JSONField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    last_serviced = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
-        db_table = 'equipment'
-        db_table_comment = 'Table for storing instances of equipment'
+        db_table = "equipment"
 
-
-class EquipmentModels(models.Model):
-    equipment_model_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the equipment model')
-    model = models.TextField(db_comment='Name of the model')
-    make = models.TextField(db_comment='Name of the make')
-    equipment_type = models.TextField(db_comment='Category of equipment that this equipment model falls into (e.g. 3D printer, bandsaw)')
-    specs_url = models.TextField(blank=True, null=True, db_comment='Optional URL to this equipment modelÆs technical specifications')
-    is_cnc = models.BooleanField(db_comment='Flag indicating whether this equipment model is CNC')
-    manufacturer_image_urls = ArrayField(models.TextField(db_comment='Optional list of manufacturer images of this equipment model'), blank=True, null=True)
-    capabilities = ArrayField(models.TextField(db_comment='List of this equipment modelÆs capabilities (e.g. drill, sew, sand)'), blank=True, null=True)
-    equipment_model_name = models.TextField(db_comment='Official name of the equipment model')
-    created_at = models.DateTimeField(db_comment='Timestamp at which this equipment model row was created')
-    last_updated = models.DateTimeField(db_comment='Timestamp at which this equipment model row was last updated')
-    specific_specs = models.JSONField(blank=True, null=True, db_comment='JSONB for storing the attributes of this model which are exclusive to its type')
+class Credential(models.Model):
+    credential_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE)
+    issuing_makerspace = models.ForeignKey(Makerspace, on_delete=models.CASCADE)
+    author_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="authored_credentials")
+    recipient_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="received_credentials")
+    credential_status = models.CharField(max_length=20, choices=CredentialStatus.choices)
+    completion_date = models.DateField(blank=True, null=True)
+    expiration_date = models.DateField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
-        db_table = 'equipment_models'
+        db_table = "credentials"
 
-
-class IssueReports(models.Model):
-    issue_report_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the issue report')
-    created_at = models.DateTimeField(db_comment='Timestamp at which this report was made')
-    last_updated = models.DateTimeField()
-    reporter_user = models.ForeignKey('Profiles', models.DO_NOTHING, blank=True, null=True, db_comment='ID foreign key of the user who made the report')
-    issue_type = models.TextField(db_comment='Category of the issue (e.g. workspace cleanliness, broken)')
-    description = models.TextField(db_comment='Description of the issue')
-    is_resolved = models.BooleanField(db_comment='Flag indicating whether this report has been resolved by staff yet')
-    equipment = models.ForeignKey(Equipment, models.DO_NOTHING, db_comment='ID foreign key of the equipment instance that was reported')
-    overseer_user = models.ForeignKey('Profiles', models.DO_NOTHING, related_name='issuereports_overseer_user_set', blank=True, null=True, db_comment='ID foreign key of the staff member who is overseeing this report')
-    title = models.TextField(db_comment='Title of the issue')
+class IssueReport(models.Model):
+    issue_report_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    reporter_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name="reported_issues")
+    overseer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name="overseen_issues")
+    title = models.CharField(max_length=255, default="a")
+    issue_type = models.CharField(max_length=100)
+    description = models.TextField()
+    is_resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
-        db_table = 'issue_reports'
-        db_table_comment = 'This table is for storing user reports of issues with equipment'
-
-
-class MakerspaceCredentialModels(models.Model):
-    pk = models.CompositePrimaryKey('makerspace_id', 'credential_model_id')
-    makerspace = models.ForeignKey('Makerspaces', models.DO_NOTHING, db_comment='ID foreign key of the makerspace that offers the credential model. Part of composite primary key')
-    credential_model = models.ForeignKey(CredentialModels, models.DO_NOTHING, db_comment='ID foreign key of the credential model that is offered by the makerspace. Part of composite primary key')
-    created_at = models.DateTimeField()
-    last_updated = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'makerspace_credential_models'
-        db_table_comment = 'Junction table for storing many-to-many relationship between makerspaces and credential models'
-
-
-class Makerspaces(models.Model):
-    makerspace_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the makerspace')
-    makerspace_name = models.TextField(db_comment='Name of the makerspace')
-    description = models.TextField(blank=True, null=True, db_comment='Optional description of this makerspace')
-    makerspace_status = models.TextField(choices=MakerspaceStatus.choices, db_comment='Current status of this makerspace (e.g. open, reserved, closed)')
-    latitude = models.FloatField(db_comment='Latitude of the building holding the makerspace (up to 7 decimal places of precision)')
-    longitude = models.FloatField(db_comment='Longitude of the building holding the makerspace (upto 7 decimal points of presicion')
-    cover_image = models.TextField(blank=True, null=True, db_comment='A link to the image of the makerspace')
-    building = models.TextField(db_comment='Acronym or abbreviation for the building holding the makerspace (as defined in the acronym decoder [https://campusinfo.umich.edu/acronyms])')
-    rooms = ArrayField(models.TextField(db_comment='Room number ONLY of the makerspace (if there is more than one, choose one)'), blank=True, null=True)
-    contact_email = models.TextField(db_comment='Public facing contact email to be displayed alongside makerspace')
-    contact_phone = models.TextField(db_comment='Public facing phone number for contacting the makerspace')
-    audience = ArrayField(models.TextField(db_comment='A multiselect objects of different types of people that can use these makerspaces'), blank=True, null=True)
-    themes = ArrayField(models.TextField(choices=MakerspaceTheme.choices, db_comment="Collection of tags, each indicating one of the makerspace's specializations"), blank=True, null=True)
-    created_at = models.DateTimeField(db_comment='Timestamp at which this makerspace row was created')
-    last_updated = models.DateTimeField(db_comment='Timestamp at which this makerspace row was last updated')
-    makerspace_tier = models.TextField(choices=MakerspaceTier.choices, db_comment="Tier measuring the extent to which this makerspace will participate in M3's features")
-    floorplan_image = models.TextField(blank=True, null=True, db_comment="Image of the facility's floor plan, detailing the locations of individual equipment and stations")
-    staff_ids = ArrayField(models.TextField(db_comment='UUIDs of profiles of staff members of the facility.'), blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'makerspaces'
-
+        db_table = "issue_reports"
 
 class OperationalData(models.Model):
-    equipment = models.OneToOneField(Equipment, models.DO_NOTHING, primary_key=True, db_comment='ID foreign key of the equipment instance that this operational data row belongs to. Primary key')
-    created_at = models.DateTimeField()
-    last_updated = models.DateTimeField()
-    lifetime_hours = models.IntegerField(blank=True, null=True, db_comment='Number of hours this equipment instance has operated for throughout its lifetime')
-    monthly_users = models.SmallIntegerField(blank=True, null=True, db_comment='Number of monthly users of this equipment instance')
-    downtime = models.FloatField(blank=True, null=True, db_comment='Downtime percentage of this equipment instance')
-    num_lifetime_reports = models.SmallIntegerField(blank=True, null=True, db_comment='Number of reports that have been assigned to this equipment throughout its lifetime')
+    equipment = models.OneToOneField(Equipment, on_delete=models.CASCADE, primary_key=True)
+    num_lifetime_reports = models.SmallIntegerField(blank=True, null=True)
+    lifetime_hours = models.IntegerField(blank=True, null=True)
+    monthly_users = models.SmallIntegerField(blank=True, null=True)
+    downtime = models.FloatField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
-        db_table = 'operational_data'
-        db_table_comment = 'Table for storing equipment operational data'
+        db_table = "operational_data"
 
-
-class Posts(models.Model):
-    post_id = models.UUIDField(primary_key=True)
-    created_at = models.DateTimeField()
-    last_updated = models.DateTimeField(blank=True, null=True)
+class Post(models.Model):
+    post_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, blank=True, null=True)
     content = models.TextField(blank=True, null=True)
-    title = models.TextField(blank=True, null=True)
-    post_image_urls = ArrayField(models.TextField(), blank=True, null=True)
-    user = models.ForeignKey('Profiles', models.DO_NOTHING)
+    post_image_urls = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:
-        managed = False
-        db_table = 'posts'
-        db_table_comment = 'Table for storing user-generated blog posts'
+        db_table = "posts"
 
+# Junction tables (composite primary keys)
 
-class Profiles(models.Model):
-    user_id = models.UUIDField(primary_key=True, db_comment='ID primary key of the user')
-    uniqname = models.TextField(unique=True, db_comment='Uniqname of the user')
-    first_name = models.TextField(db_comment='First name of the user')
-    middle_initial = models.TextField(blank=True, null=True, db_comment='Optional middle initial of the user')
-    last_name = models.TextField(db_comment='Last name of the user')
-    image_url = models.TextField(blank=True, null=True, db_comment='URL to the userÆs profile picture')
-    pronouns = models.TextField(blank=True, null=True, db_comment='Optional pronouns of the user')
-    roles = ArrayField(models.TextField(choices=Role.choices, db_comment='List of the userÆs roles (e.g. student, shop mentor, shop manager, staff)'))
-    created_at = models.DateTimeField()
-    last_signed_in = models.DateTimeField()
-    system_theme = models.TextField(choices=SystemTheme.choices, db_comment='UI theme preference of the user')
-    is_grad_student = models.BooleanField(db_comment='Flag indicating whether the user is a graduate student')
-    locale = models.TextField(choices=Locale.choices, db_comment='Locale preference of the user')
+class CredentialModelPrerequisite(models.Model):
+    pk = models.CompositePrimaryKey("prerequisite_credential_model_id", "dependent_credential_model_id")
+    prerequisite_credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE, related_name="prerequisite_for_set")
+    dependent_credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE, related_name="depends_on_set")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
-        db_table = 'profiles'
+        db_table = "credential_model_prerequisites"
 
-# SQL Views
+class MakerspaceCredentialModel(models.Model):
+    pk = models.CompositePrimaryKey("makerspace_id", "credential_model_id")
+    makerspace = models.ForeignKey(Makerspace, on_delete=models.CASCADE)
+    credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "makerspace_credential_models"
+
+class MakerspaceStaff(models.Model):
+    pk = models.CompositePrimaryKey("makerspace_id", "user_id")
+    makerspace = models.ForeignKey(Makerspace, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "makerspace_staff"
+
+class EquipmentModelCapability(models.Model):
+    pk = models.CompositePrimaryKey("equipment_model_id", "capability_id")
+    equipment_model = models.ForeignKey(EquipmentModel, on_delete=models.CASCADE)
+    capability = models.ForeignKey(Capability, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "equipment_model_capabilities"
+
+class EquipmentAcceptedMaterial(models.Model):
+    pk = models.CompositePrimaryKey("equipment_id", "material_id")
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "equipment_accepted_materials"
+
+class EquipmentRestrictedMaterial(models.Model):
+    pk = models.CompositePrimaryKey("equipment_id", "material_id")
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    material = models.ForeignKey(Material, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "equipment_restricted_materials"
+
+# SQL Views (created via a RunSQL migration -- see core/migrations/0002_create_views.py)
 
 class ViewUserTrainings(models.Model):
     user_id = models.UUIDField(primary_key=True)
-    uniqname = models.TextField()
-    first_name = models.TextField()
-    last_name = models.TextField()
-    completed_trainings = ArrayField(models.TextField(), null=True)
+    uniqname = models.CharField(max_length=8)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    completed_trainings = models.JSONField(null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
@@ -283,8 +340,8 @@ class ViewUserTrainings(models.Model):
 
 class ViewCredentialModelPrerequisites(models.Model):
     pk = models.CompositePrimaryKey('prerequisite_credential_model_name', 'dependent_credential_model_name')
-    prerequisite_credential_model_name = models.TextField()
-    dependent_credential_model_name = models.TextField()
+    prerequisite_credential_model_name = models.CharField(max_length=255)
+    dependent_credential_model_name = models.CharField(max_length=255)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
@@ -295,10 +352,10 @@ class ViewCredentialsAdmin(models.Model):
     pk = models.CompositePrimaryKey('recipient_user_id', 'credential_id')
     recipient_user_id = models.UUIDField()
     credential_id = models.UUIDField()
-    completion_date = models.DateField()
-    credential_model_name = models.TextField()
-    credential_status = models.TextField(choices=CredentialStatus.choices)
-    makerspace_name = models.TextField()
+    completion_date = models.DateField(null=True)
+    credential_model_name = models.CharField(max_length=255)
+    credential_status = models.CharField(max_length=20, choices=CredentialStatus.choices)
+    makerspace_name = models.CharField(max_length=255)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
@@ -307,28 +364,28 @@ class ViewCredentialsAdmin(models.Model):
 
 class ViewEquipmentDetailPages(models.Model):
     equipment_id = models.UUIDField(primary_key=True)
-    equipment_status = models.TextField(choices=EquipmentStatus.choices)
-    materials = ArrayField(models.TextField(), null=True)
-    restricted_materials = ArrayField(models.TextField(), null=True)
+    equipment_status = models.CharField(max_length=20, choices=EquipmentStatus.choices, null=True)
+    materials = models.JSONField(null=True)
+    restricted_materials = models.JSONField(null=True)
     in_situ_image_url = models.TextField(null=True)
     last_serviced = models.DateTimeField(null=True)
     equipment_specific_specs = models.JSONField(null=True)
     notes = models.TextField(null=True)
-    equipment_model_name = models.TextField()
-    model = models.TextField()
-    make = models.TextField()
-    equipment_type = models.TextField()
+    equipment_model_name = models.CharField(max_length=255)
+    model = models.CharField(max_length=255)
+    make = models.CharField(max_length=255)
+    equipment_type = models.CharField(max_length=100)
     specs_url = models.TextField(null=True)
     is_cnc = models.BooleanField()
-    manufacturer_image_urls = ArrayField(models.TextField(), null=True)
-    capabilities = ArrayField(models.TextField(), null=True)
+    manufacturer_image_urls = models.JSONField(null=True)
+    capabilities = models.JSONField(null=True)
     equipment_model_specific_specs = models.JSONField(null=True)
     makerspace_id = models.UUIDField()
-    makerspace_name = models.TextField()
-    building = models.TextField()
-    rooms = ArrayField(models.TextField(), null=True)
-    credential_model_id = models.UUIDField()
-    credential_model_name = models.TextField()
+    makerspace_name = models.CharField(max_length=255)
+    building = models.CharField(max_length=9)
+    rooms = models.JSONField(null=True)
+    credential_model_id = models.UUIDField(null=True)
+    credential_model_name = models.CharField(max_length=255, null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
@@ -337,17 +394,17 @@ class ViewEquipmentDetailPages(models.Model):
 
 class ViewIssueReportCards(models.Model):
     issue_report_id = models.UUIDField(primary_key=True)
-    issue_type = models.TextField()
+    issue_type = models.CharField(max_length=100)
     is_resolved = models.BooleanField()
     makerspace_id = models.UUIDField()
-    equipment_name = models.TextField()
-    title = models.TextField()
+    equipment_name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
     description = models.TextField()
-    created_at = models.DateField()
-    reporter_first_name = models.TextField()
-    reporter_last_name = models.TextField()
-    overseer_first_name = models.TextField()
-    overseer_last_name = models.TextField()
+    created_at = models.DateTimeField()
+    reporter_first_name = models.CharField(max_length=100, null=True)
+    reporter_last_name = models.CharField(max_length=100, null=True)
+    overseer_first_name = models.CharField(max_length=100, null=True)
+    overseer_last_name = models.CharField(max_length=100, null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
@@ -356,71 +413,69 @@ class ViewIssueReportCards(models.Model):
 
 class ViewMakerspaceDetailPages(models.Model):
     makerspace_id = models.UUIDField(primary_key=True)
-    makerspace_name = models.TextField()
-    description = models.TextField()
-    makerspace_status = models.TextField(choices=MakerspaceStatus.choices)
+    makerspace_name = models.CharField(max_length=255)
+    description = models.TextField(null=True)
+    makerspace_status = models.CharField(max_length=20, choices=MakerspaceStatus.choices, null=True)
     cover_image = models.TextField(null=True)
-    building = models.TextField()
-    rooms = ArrayField(models.TextField(), null=True)
-    contact_email = models.TextField()
-    contact_phone = models.TextField()
-    audience = ArrayField(models.TextField(), null=True)
-    themes = ArrayField(models.TextField(choices=MakerspaceTheme.choices), null=True)
+    building = models.CharField(max_length=9)
+    rooms = models.JSONField(null=True)
+    contact_email = models.CharField(max_length=255)
+    contact_phone = models.CharField(max_length=10)
+    audience = models.JSONField(null=True)
+    themes = models.JSONField(null=True)
     floorplan_image = models.TextField(null=True)
-    staff_ids = ArrayField(models.TextField(), null=True)
-    equipment_list = ArrayField(models.JSONField(), default=list)
+    staff_ids = models.JSONField(null=True)
+    equipment_list = models.JSONField(default=list)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'view_makerspace_detail_pages'
 
-# SQL Materialized Views
+# SQL Materialized Views (implemented as regular MySQL views -- MySQL has no materialized
+# view feature; created via the same RunSQL migration as the views above)
 
 class CredentialSummary(models.Model):
     pk = models.CompositePrimaryKey('recipient_user_id', 'credential_model_id')
     recipient_user_id = models.UUIDField()
     credential_id = models.UUIDField()
     credential_model_id = models.UUIDField()
-    credential_model_name = models.TextField()
-    credential_status = models.TextField(choices=CredentialStatus.choices)
-    author_first_name = models.TextField()
-    author_last_name = models.TextField()
-    completion_date = models.DateField()
-    expiration_date = models.DateField()
-    makerspace_name = models.TextField()
+    credential_model_name = models.CharField(max_length=255)
+    credential_status = models.CharField(max_length=20, choices=CredentialStatus.choices)
+    author_first_name = models.CharField(max_length=100, null=True)
+    author_last_name = models.CharField(max_length=100, null=True)
+    completion_date = models.DateField(null=True)
+    expiration_date = models.DateField(null=True)
+    makerspace_name = models.CharField(max_length=255, null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
-        db_table = 'private"."credential_summary'
+        db_table = 'credential_summary'
 
 
 class ViewEquipmentCards(models.Model):
     equipment_id = models.UUIDField(primary_key=True)
-    equipment_model_name = models.TextField()
-    building = models.TextField()
-    rooms = ArrayField(models.TextField(), null=True)
-    equipment_type = models.TextField()
-    capabilities = ArrayField(models.TextField(), null=True)
-    manufacturer_image_urls = ArrayField(models.TextField(), null=True)
-    materials = ArrayField(models.TextField(), null=True)
-    fts = models.TextField()
+    equipment_model_name = models.CharField(max_length=255)
+    building = models.CharField(max_length=9)
+    rooms = models.JSONField(null=True)
+    equipment_type = models.CharField(max_length=100)
+    capabilities = models.JSONField(null=True)
+    manufacturer_image_urls = models.JSONField(null=True)
+    materials = models.JSONField(null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
-        db_table = 'private"."view_equipment_cards'
+        db_table = 'view_equipment_cards'
 
 
 class ViewMakerspaceCards(models.Model):
     makerspace_id = models.UUIDField(primary_key=True)
-    makerspace_name = models.TextField()
-    cover_image = models.TextField()
-    building = models.TextField()
-    rooms = ArrayField(models.TextField(), null=True)
-    description = models.TextField()
-    themes = ArrayField(models.TextField(choices=MakerspaceTheme.choices), null=True)
-    fts = models.TextField()
+    makerspace_name = models.CharField(max_length=255)
+    cover_image = models.TextField(null=True)
+    building = models.CharField(max_length=9)
+    rooms = models.JSONField(null=True)
+    description = models.TextField(null=True)
+    themes = models.JSONField(null=True)
 
     class Meta:
         managed = False  # Created from a view. Don't remove.
-        db_table = 'private"."view_makerspace_cards'
-
+        db_table = 'view_makerspace_cards'
