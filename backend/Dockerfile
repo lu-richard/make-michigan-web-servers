@@ -16,7 +16,7 @@ COPY . /app/
 ENV SECRET_KEY=build-time-placeholder-not-used-at-runtime
 ENV DEBUG=False
 ENV ALLOWED_HOSTS=localhost
-ENV DATABASE_URL=postgres://user:pass@localhost:5432/placeholder
+ENV DATABASE_URL=mysql://user:pass@localhost:3306/placeholder
 ENV DEFAULT_THROTTLE_ANON=100/day
 ENV DEFAULT_THROTTLE_USER=1000/day
 ENV CORS_ALLOWED_ORIGINS=http://localhost
