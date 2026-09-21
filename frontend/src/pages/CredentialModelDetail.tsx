@@ -1,12 +1,10 @@
 import { Link, useParams, useOutletContext } from "react-router-dom";
 import { useState, useEffect } from "react";
-// import supabase from "../lib/supabase";
 import Loading from "./Loading";
-import type { CredentialModel, EquipmentLink, SkillTreeContext } from "../types/types";
+import type { CredentialModel, EquipmentLink, MakerspaceCardData, SkillTreeContext } from "../types/types";
+import { apiGet, apiGetList } from "../lib/api";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useCredentialModelDetailData = () => {
     const { makerspaceId, credModelId } = useParams();
@@ -19,18 +17,7 @@ const useCredentialModelDetailData = () => {
         if (!selectedMakerspace) {
             const fetchSelectedMakerspace = async () => {
                 try {
-                    const response = await fetch(`${VITE_API_BASE_URL}/view-makerspace-cards/${makerspaceId!}/`);
-
-                    if (!response.ok) {
-                        throw new Error(`Response status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (!data) {
-                        throw new Error("Specified makerspace not found");
-                    }
-
+                    const data = await apiGet<MakerspaceCardData>(`/view-makerspace-cards/${makerspaceId!}/`);
                     setSelectedMakerspace(data);
                 }
                 catch (e) {
@@ -43,42 +30,12 @@ const useCredentialModelDetailData = () => {
     }, []);
 
     useEffect(() => {
-        // const credentialModelQuery = supabase.from('credential_models').select().eq('credential_model_id', credModelId!).maybeSingle();
-        // const unlockedEquipmentQuery = supabase.from('equipment').select('equipment_id, equipment_name').eq('credential_model_id', credModelId!);
-
-        const credentialModelQuery = `${VITE_API_BASE_URL}/credential-models/${credModelId!}/`;
-        const unlockedEquipmentQuery = `${VITE_API_BASE_URL}/equipment/?credential_model_id=${credModelId!}`;
-        
         const fetchCredentialModelDetailData = async () => {
             try {
-                // const [
-                //     { data: credModelData, error: credModelError },
-                //     { data: unlockEqData, error: unlockEqError }
-                // ] = await Promise.all([credentialModelQuery, unlockedEquipmentQuery]);
-
-                const [credModelRes, unlockEqRes] = await Promise.all([
-                    fetch(credentialModelQuery),
-                    fetch(unlockedEquipmentQuery)
+                const [credModelData, unlockEqData] = await Promise.all([
+                    apiGet<CredentialModel>(`/credential-models/${credModelId!}/`),
+                    apiGetList<EquipmentLink>('/equipment/', { credential_model_id: credModelId! }),
                 ]);
-
-                if (!credModelRes.ok) {
-                    throw new Error(`Credential model request failed with status: ${credModelRes.status}`);
-                }
-
-                if (!unlockEqRes.ok) {
-                    throw new Error(`Equipment request failed with status: ${unlockEqRes.status}`);
-                }
-
-                const credModelData = await credModelRes.json();
-                const unlockEqData = await unlockEqRes.json();
-
-                if (!credModelData) {
-                    throw new Error("Credential model not found");
-                }
-                
-                if (!unlockEqData) {
-                    throw new Error("Equipment not found");
-                }
 
                 setCredentialModel(credModelData);
                 setUnlockedEquipment(unlockEqData);

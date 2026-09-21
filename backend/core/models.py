@@ -177,6 +177,7 @@ class Makerspace(models.Model):
     building = models.CharField(max_length=9)
     cover_image = models.TextField(blank=True, null=True)
     floorplan_image = models.TextField(blank=True, null=True)
+    staff_ids = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
@@ -245,30 +246,6 @@ class IssueReport(models.Model):
 
     class Meta:
         db_table = "issue_reports"
-
-class OperationalData(models.Model):
-    equipment = models.OneToOneField(Equipment, on_delete=models.CASCADE, primary_key=True)
-    num_lifetime_reports = models.SmallIntegerField(blank=True, null=True)
-    lifetime_hours = models.IntegerField(blank=True, null=True)
-    monthly_users = models.SmallIntegerField(blank=True, null=True)
-    downtime = models.FloatField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "operational_data"
-
-class Post(models.Model):
-    post_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255, blank=True, null=True)
-    content = models.TextField(blank=True, null=True)
-    post_image_urls = models.JSONField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True, blank=True, null=True)
-
-    class Meta:
-        db_table = "posts"
 
 # Junction tables (composite primary keys)
 

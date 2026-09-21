@@ -1,13 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import type { AdminCredential, ProfileData } from "../types/types";
+import { apiGetList, apiGetOrNull } from "../lib/api";
 import Loading from "./Loading";
 import styles from '../styles/adminProfileDetail.module.css';
 import AdminCredentialListItem from "../components/AdminCredentialListItem";
 import labels from "../constants/labels";
 import SearchIcon from '@mui/icons-material/Search';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useAdminProfileDetailData = () => {
     const { id } = useParams();
@@ -25,44 +24,30 @@ const useAdminProfileDetailData = () => {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const response = await fetch(`${VITE_API_BASE_URL}/profiles/${id}/`);
-
-            if (response.status === 404) {
-                setProfile(null);
-                return;
-            }
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch profile: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            setProfile(data);
-        };
-
-        const fetchCredentials = async () => {
-            const response = await fetch(`${VITE_API_BASE_URL}/view-credentials-admin/?recipient_user_id=${id}`);
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch credentials: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            setCredentials(data.results ?? data);
-        }
-
-        const fetchAdminProfile = async () => {
             try {
-                await Promise.all([fetchProfile(), fetchCredentials()]);
+                const data = await apiGetOrNull<ProfileData>(`/profiles/${id}/`);
+                setProfile(data);
             }
             catch (e) {
                 console.error((e as Error).message);
             }
-            finally {
-                setLoading(false);
+        };
+
+        const fetchCredentials = async () => {
+            try {
+                const data = await apiGetList<AdminCredential>('/view-credentials-admin/', { recipient_user_id: id });
+                setCredentials(data);
             }
+            catch (e) {
+                console.error((e as Error).message);
+            }
+        }
+
+        const fetchAdminProfile = async () => {
+            // Each fetch handles its own errors above so a failure in one (e.g. credentials)
+            // never blanks out a successful result from the other (e.g. profile).
+            await Promise.all([fetchProfile(), fetchCredentials()]);
+            setLoading(false);
         };
 
         fetchAdminProfile();

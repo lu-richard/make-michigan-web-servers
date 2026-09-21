@@ -3,11 +3,10 @@ import { useState, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 import type { Session } from '@supabase/supabase-js';
 import type { ProfileData } from '../types/types';
+import { apiGet } from '../lib/api';
 import Navbar from '../components/Navbar';
 import supabase from '../lib/supabase';
 import styles from '../styles/app.module.css';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // // Custom, reusable hook for fetching all data from Supabase necessary for UI
 // const useAllData = () => {
@@ -87,14 +86,7 @@ function App() {
     const fetchProfile = async (s: Session | null) => {
       try {
         if (s) {
-          const response = await fetch(`${VITE_API_BASE_URL}/profiles/${s.user.id}/`);
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch profile: ${response.status}`);
-          }
-
-          const data = await response.json();
-
+          const data = await apiGet<ProfileData>(`/profiles/${s.user.id}/`);
           setProfile(data);
         }
         else {

@@ -37,9 +37,7 @@ router.register(r"materials", views.MaterialViewSet)
 router.register(r"equipment-model-capabilities", views.EquipmentModelCapabilityViewSet)
 router.register(r"equipment-accepted-materials", views.EquipmentAcceptedMaterialViewSet)
 router.register(r"equipment-restricted-materials", views.EquipmentRestrictedMaterialViewSet)
-router.register(r"posts", views.PostViewSet)
 router.register(r"issue-reports", views.IssueReportViewSet)
-router.register(r"operational-data", views.OperationalDataViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),

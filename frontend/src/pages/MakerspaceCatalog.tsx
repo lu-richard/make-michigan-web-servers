@@ -1,12 +1,10 @@
 import type { MakerspaceCardData } from "../types/types";
+import { apiGetList } from "../lib/api";
 import MakerspaceCard from "../components/MakerspaceCard";
 // import styles from '../styles/catalog.module.css';
 import { useState, useEffect } from "react";
-// import supabase from "../lib/supabase";
 import Loading from "./Loading";
 import SearchIcon from '@mui/icons-material/Search';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Reusable hook for fetching makerspace cards based on search value, limit, and order
 const useMakerspaceCatalogData = () => {
@@ -31,27 +29,13 @@ const useMakerspaceCatalogData = () => {
         try {
           setLoading(true);
 
-          let query = `${VITE_API_BASE_URL}/view-makerspace-cards/?`;
+          const cards = await apiGetList<MakerspaceCardData>('/view-makerspace-cards/', {
+            search: debouncedSearchValue || undefined,
+            ordering: `${isDescending ? '-' : ''}${isOrderedByBuilding ? 'building' : 'makerspace_name'}`,
+            limit: searchLimit,
+          });
 
-          if (debouncedSearchValue !== "") {
-            query += `search=${debouncedSearchValue}&`;
-          }
-
-          query += `ordering=${isDescending ? '-' : ''}${isOrderedByBuilding ? 'building' : 'makerspace_name'}&limit=${searchLimit}`;
-          
-          const response = await fetch(query);
-
-          if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (!data) {
-            throw new Error("Makerspace cards not found");
-          }
-          
-          setMakerspaceCards(data.results);
+          setMakerspaceCards(cards);
         }
         catch (e) {
           console.error((e as Error).message);

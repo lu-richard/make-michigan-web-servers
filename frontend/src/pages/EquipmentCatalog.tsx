@@ -1,11 +1,10 @@
 // import styles from '../styles/catalog.module.css';
 import { useState, useEffect } from 'react';
 import type { EquipmentCardData } from '../types/types';
+import { apiGetList } from '../lib/api';
 import EquipmentCard from '../components/EquipmentCard';
 import Loading from './Loading';
 import SearchIcon from '@mui/icons-material/Search';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Reusable hook for fetching equipment cards based on search value, limit, and order
 const useEquipmentCatalogData = () => {
@@ -30,27 +29,13 @@ const useEquipmentCatalogData = () => {
         try {
           setLoading(true);
 
-          let query = `${VITE_API_BASE_URL}/view-equipment-cards/?`;
+          const cards = await apiGetList<EquipmentCardData>('/view-equipment-cards/', {
+            search: debouncedSearchValue || undefined,
+            ordering: `${isDescending ? '-' : ''}${isOrderedByModelName ? 'equipment_model_name' : 'equipment_type'}`,
+            limit: searchLimit,
+          });
 
-          if (debouncedSearchValue !== "") {
-            query += `search=${debouncedSearchValue}&`;
-          }
-
-          query += `ordering=${isDescending ? '-' : ''}${isOrderedByModelName ? 'equipment_model_name' : 'equipment_type'}&limit=${searchLimit}`;
-          
-          const response = await fetch(query);
-
-          if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (!data) {
-            throw new Error("Equipment cards not found");
-          }
-          
-          setEquipmentCards(data.results);
+          setEquipmentCards(cards);
         }
         catch (e) {
           console.error((e as Error).message);

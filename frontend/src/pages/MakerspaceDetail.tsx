@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import type { MakerspaceDetailData } from "../types/types";
+import { apiGet } from "../lib/api";
 import supabase from "../lib/supabase";
 // import styles from '../styles/makerspaceDetail.module.css';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -8,8 +9,6 @@ import Loading from "./Loading";
 import headshots from '../constants/headshots';
 import labels from "../constants/labels";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useMakerspaceDetailData = () => {
     const { id } = useParams();
@@ -21,21 +20,9 @@ const useMakerspaceDetailData = () => {
     useEffect(() => {
         const fetchMakerspace = async () => {
             try {
-                const response = await fetch(`${VITE_API_BASE_URL}/view-makerspace-detail-pages/${id}`);
+                const data = await apiGet<MakerspaceDetailData>(`/view-makerspace-detail-pages/${id}`);
 
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (!data) {
-                    throw new Error("Makerspace detail page not found");
-                }
-
-                console.log(data)
-                
-                setMakerspace(data as MakerspaceDetailData | null);
+                setMakerspace(data);
 
                 if (data?.["cover_image"]) {
                     const { data: coverImg } = supabase

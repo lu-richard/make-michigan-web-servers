@@ -100,13 +100,6 @@ class EquipmentRestrictedMaterialSerializer(serializers.ModelSerializer):
         model = EquipmentRestrictedMaterial
         fields = ['equipment_id', 'material_id']
 
-class PostSerializer(serializers.ModelSerializer):
-    user_id = serializers.UUIDField()
-
-    class Meta:
-        model = Post
-        fields = ['post_id', 'created_at', 'last_updated', 'content', 'title', 'post_image_urls', 'user_id']
-
 class IssueReportSerializer(serializers.ModelSerializer):
     reporter_user_id = serializers.UUIDField(required=False, allow_null=True)
     equipment_id = serializers.UUIDField()
@@ -115,13 +108,6 @@ class IssueReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueReport
         fields = ['issue_report_id', 'created_at', 'last_updated', 'reporter_user_id', 'issue_type', 'description', 'is_resolved', 'equipment_id', 'overseer_user_id', 'title']
-
-class OperationalDataSerializer(serializers.ModelSerializer):
-    equipment_id = serializers.UUIDField()
-
-    class Meta:
-        model = OperationalData
-        fields = ['equipment_id', 'created_at', 'last_updated', 'lifetime_hours', 'monthly_users', 'downtime', 'num_lifetime_reports']
 
 # SQL View Serializers
 

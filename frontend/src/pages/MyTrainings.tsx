@@ -3,8 +3,7 @@ import { useAppContext } from "../context/AppContext";
 // import styles from "../styles/dataTable.module.css";
 import DashboardNavBar from "../components/DashboardNavBar";
 import type { CertificateData } from "../types/types";
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { apiGetList } from "../lib/api";
 
 // This type helps us sort our data
 type SortDirection = "asc" | "desc" | null;
@@ -54,19 +53,14 @@ export default function MyTrainings() {
       try {
 
         // Query Django for credentials belonging to the current user
-        const params = new URLSearchParams({ recipient_user_id: profile!["user_id"], ordering: "-completion_date" });
-        const response = await fetch(`${VITE_API_BASE_URL}/credential-summary/?${params.toString()}`);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch credentials: ${response.status}`);
-        }
-
-        const json = await response.json();
-        const data = json.results ?? json;
+        const data = await apiGetList<CertificateData>('/credential-summary/', {
+          recipient_user_id: profile!["user_id"],
+          ordering: "-completion_date",
+        });
 
         // Only update state if component is still mounted
         if (isMounted) {
-          setCredentials((data || []) as unknown as CertificateData[]);
+          setCredentials(data);
         }
       } catch (err: any) {
         console.error("Error fetching credentials:", err);

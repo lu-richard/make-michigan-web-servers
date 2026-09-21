@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { MakerspaceCardData } from '../types/types'
+import { apiGetList } from '../lib/api'
 import labels from '../constants/labels'
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 interface Props {
   // if callers supply makerspaces, the component will use that instead of fetching
@@ -36,19 +35,12 @@ export default function Sidebar({ makerspaces: propsMakerspaces, onSelect, class
       setLoading(true)
       setError(null)
       try {
-        const params = new URLSearchParams({ ordering: 'makerspace_name' })
-        if (debouncedQuery) {
-          params.set('search', debouncedQuery)
-        }
-        const response = await fetch(`${VITE_API_BASE_URL}/view-makerspace-cards/?${params.toString()}`)
+        const data = await apiGetList<MakerspaceCardData>('/view-makerspace-cards/', {
+          ordering: 'makerspace_name',
+          search: debouncedQuery || undefined,
+        })
         if (!mounted) return
-        if (!response.ok) {
-          setError(`Failed to fetch makerspaces: ${response.status}`)
-          setRemoteMakerspaces([])
-        } else {
-          const data = await response.json()
-          setRemoteMakerspaces((data as MakerspaceCardData[]) ?? [])
-        }
+        setRemoteMakerspaces(data)
       } catch (e: any) {
         if (!mounted) return
         setError(e?.message ?? String(e))

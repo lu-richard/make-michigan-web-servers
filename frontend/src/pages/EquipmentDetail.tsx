@@ -1,13 +1,12 @@
 import { Link, useParams } from "react-router-dom";
 import type { EquipmentDetailData } from "../types/types";
 import { useState, useEffect } from "react";
+import { apiGet } from "../lib/api";
 import supabase from "../lib/supabase";
 import Loading from "./Loading";
 // import styles from '../styles/equipmentDetail.module.css';
 import labels from "../constants/labels";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useEquipmentDetailData = () => {
     const { id } = useParams();
@@ -18,19 +17,7 @@ const useEquipmentDetailData = () => {
     useEffect(() => {
         const fetchEquipment = async () => {
             try {
-                const response = await fetch(`${VITE_API_BASE_URL}/view-equipment-detail-pages/${id}`);
-
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (!data) {
-                    throw new Error("Equipment detail page not found");
-                }
-
-                console.log(data)
+                const data = await apiGet<EquipmentDetailData>(`/view-equipment-detail-pages/${id}`);
 
                 setEquipment(data);
 

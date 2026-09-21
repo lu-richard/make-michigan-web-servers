@@ -158,17 +158,7 @@ class EquipmentRestrictedMaterialViewSet(viewsets.ModelViewSet):
     serializer_class = EquipmentRestrictedMaterialSerializer
     filterset_fields = ['equipment_id', 'material_id']
 
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('post_id')
-    serializer_class = PostSerializer
-    pagination_class = StandardResultsSetPagination
-
 class IssueReportViewSet(viewsets.ModelViewSet):
     queryset = IssueReport.objects.all().order_by('issue_report_id')
     serializer_class = IssueReportSerializer
-    pagination_class = StandardResultsSetPagination
-
-class OperationalDataViewSet(viewsets.ModelViewSet):
-    queryset = OperationalData.objects.all().order_by('equipment_id')
-    serializer_class = OperationalDataSerializer
     pagination_class = StandardResultsSetPagination

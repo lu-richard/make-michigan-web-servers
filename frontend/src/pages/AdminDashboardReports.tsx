@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 // import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import PeopleIcon from '@mui/icons-material/People';
 import type { IssueReportCardData } from "../types/types";
+import { apiGetList } from "../lib/api";
 import Loading from "./Loading";
 import IssueReportCard from "../components/IssueReportCard";
 import SearchIcon from '@mui/icons-material/Search';
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function AdminDashboardReports() {
     // const { profile } = useAppContext();
@@ -19,15 +18,8 @@ function AdminDashboardReports() {
     useEffect(() => {
         const fetchIssueReports = async () => {
             try {
-                const response = await fetch(`${VITE_API_BASE_URL}/view-issue-report-cards/`);
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch issue reports: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                setIssueReports(data.results ?? data);
+                const data = await apiGetList<IssueReportCardData>('/view-issue-report-cards/');
+                setIssueReports(data);
             }
             catch (e) {
                 console.error((e as Error).message);
