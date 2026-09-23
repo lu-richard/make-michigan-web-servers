@@ -1,3 +1,7 @@
 make.engin.umich.edu {
     reverse_proxy frontend:80
 }
+
+http://3.23.115.131 {
+    reverse_proxy frontend:80
+}
