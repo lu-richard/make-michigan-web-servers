@@ -1,0 +1,3 @@
+issue_report_id,created_at,last_updated,reporter_user_id,issue_type,description,is_resolved,equipment_id,overseer_user_id,title
+7964a28a-e175-4aae-80c8-eb7327ab08b9,2026-02-14 19:03:38.058588+00,2026-02-14 19:03:38.058588+00,a31176e7-1b2b-4f19-8496-db2e534fcc1b,broken,The sand blaster is broken,false,5a2d79e9-f772-4fce-a129-849230756719,,Broken sand blaster
+baf505ab-8384-4042-b981-4a20c04e7fff,2026-02-07 19:48:03.361772+00,2026-02-07 19:48:03.361772+00,b883ffde-2b4d-4e8c-992c-d8f1a65054a5,cleanliness,The bandsaw is very dirty.,false,14b0d25e-e83d-481b-8a5f-09e654029fb7,b883ffde-2b4d-4e8c-992c-d8f1a65054a5,Bandsaw is dirty
