@@ -141,8 +141,6 @@ class ViewMakerspaceDetailPagesSerializer(serializers.ModelSerializer):
         model = ViewMakerspaceDetailPages
         fields = '__all__'
 
-# SQL Materialized View Serializers
-
 class CredentialSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = CredentialSummary

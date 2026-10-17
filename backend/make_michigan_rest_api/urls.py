@@ -15,8 +15,6 @@ router.register(r"view-equipment-detail-pages", views.ViewEquipmentDetailPagesVi
 router.register(r"view-issue-report-cards", views.ViewIssueReportCardsViewSet)
 router.register(r"view-makerspace-detail-pages", views.ViewMakerspaceDetailPagesViewSet)
 
-# SQL Materialized Views
-
 router.register(r"credential-summary", views.CredentialSummaryViewSet)
 router.register(r"view-equipment-cards", views.ViewEquipmentCardsViewSet)
 router.register(r"view-makerspace-cards", views.ViewMakerspaceCardsViewSet)

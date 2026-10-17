@@ -408,9 +408,6 @@ class ViewMakerspaceDetailPages(models.Model):
         managed = False  # Created from a view. Don't remove.
         db_table = 'view_makerspace_detail_pages'
 
-# SQL Materialized Views (implemented as regular MySQL views -- MySQL has no materialized
-# view feature; created via the same RunSQL migration as the views above)
-
 class CredentialSummary(models.Model):
     pk = models.CompositePrimaryKey('recipient_user_id', 'credential_model_id')
     recipient_user_id = models.UUIDField()

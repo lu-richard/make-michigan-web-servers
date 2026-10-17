@@ -33,7 +33,6 @@ function buildUrl(path: string, params?: Params): string {
     return queryString ? `${url}?${queryString}` : url;
 }
 
-/** Fetch a single resource. Throws ApiError on any non-2xx response, including 404. */
 export async function apiGet<T>(path: string, params?: Params): Promise<T> {
     const response = await fetch(buildUrl(path, params));
 
@@ -44,7 +43,6 @@ export async function apiGet<T>(path: string, params?: Params): Promise<T> {
     return response.json() as Promise<T>;
 }
 
-/** Like apiGet, but returns null instead of throwing on a 404 (for "may not exist" detail pages). */
 export async function apiGetOrNull<T>(path: string, params?: Params): Promise<T | null> {
     const response = await fetch(buildUrl(path, params));
 
@@ -59,8 +57,24 @@ export async function apiGetOrNull<T>(path: string, params?: Params): Promise<T 
     return response.json() as Promise<T>;
 }
 
-/** Fetch a list endpoint and always return a plain array, unwrapping DRF's paginated envelope. */
 export async function apiGetList<T>(path: string, params?: Params): Promise<T[]> {
     const data = await apiGet<Paginated<T> | T[]>(path, params);
     return Array.isArray(data) ? data : data.results;
+}
+
+export async function apiPost<T>(path: string, payload: Object): Promise<T> {
+    const response = await fetch(buildUrl(path), {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': 'Token <your_token>'
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    }
+
+    return response.json() as Promise<T>;
 }

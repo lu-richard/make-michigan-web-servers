@@ -64,8 +64,6 @@ class ViewMakerspaceDetailPagesViewSet(viewsets.ModelViewSet):
     serializer_class = ViewMakerspaceDetailPagesSerializer
     filterset_fields = ['makerspace_id']
 
-# SQL Materialized View ViewSets
-
 class CredentialSummaryViewSet(viewsets.ModelViewSet):
     queryset = CredentialSummary.objects.all().order_by('recipient_user_id')
     serializer_class = CredentialSummarySerializer
