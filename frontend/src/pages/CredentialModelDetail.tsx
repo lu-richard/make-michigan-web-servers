@@ -17,7 +17,7 @@ const useCredentialModelDetailData = () => {
         if (!selectedMakerspace) {
             const fetchSelectedMakerspace = async () => {
                 try {
-                    const data = await apiGet<MakerspaceCardData>(`/view-makerspace-cards/${makerspaceId!}/`);
+                    const data = await apiGet<MakerspaceCardData>(`/view-makerspace-cards/${makerspaceId!}`);
                     setSelectedMakerspace(data);
                 }
                 catch (e) {

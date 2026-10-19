@@ -96,6 +96,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class MakerspaceViewSet(viewsets.ModelViewSet):
     queryset = Makerspace.objects.all()
     serializer_class = MakerspaceSerializer
+    ordering_fields = ['makerspace_name']
 
 class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
@@ -105,6 +106,7 @@ class EquipmentViewSet(viewsets.ModelViewSet):
 class EquipmentModelViewSet(viewsets.ModelViewSet):
     queryset = EquipmentModel.objects.all()
     serializer_class = EquipmentModelSerializer
+    ordering_fields = ['equipment_model_name']
 
 class CredentialViewSet(viewsets.ModelViewSet):
     queryset = Credential.objects.all().order_by('credential_id')
@@ -115,6 +117,7 @@ class CredentialModelViewSet(viewsets.ModelViewSet):
     queryset = CredentialModel.objects.all()
     serializer_class = CredentialModelSerializer
     filterset_class = CredentialModelFilter
+    ordering_fields = ['credential_model_name']
 
 class MakerspaceCredentialModelViewSet(viewsets.ModelViewSet):
     queryset = MakerspaceCredentialModel.objects.all()
@@ -136,25 +139,30 @@ class MakerspaceStaffViewSet(viewsets.ModelViewSet):
 class CapabilityViewSet(viewsets.ModelViewSet):
     queryset = Capability.objects.all()
     serializer_class = CapabilitySerializer
+    ordering_fields = ['name']
 
 class MaterialViewSet(viewsets.ModelViewSet):
     queryset = Material.objects.all()
     serializer_class = MaterialSerializer
+    ordering_fields = ['name']
 
 class EquipmentModelCapabilityViewSet(viewsets.ModelViewSet):
     queryset = EquipmentModelCapability.objects.all()
     serializer_class = EquipmentModelCapabilitySerializer
     filterset_fields = ['equipment_model_id', 'capability_id']
+    ordering_fields = ['equipment_model_id', 'capability_id']
 
 class EquipmentAcceptedMaterialViewSet(viewsets.ModelViewSet):
     queryset = EquipmentAcceptedMaterial.objects.all()
     serializer_class = EquipmentAcceptedMaterialSerializer
     filterset_fields = ['equipment_id', 'material_id']
+    ordering_fields = ['equipment_id', 'material_id']
 
 class EquipmentRestrictedMaterialViewSet(viewsets.ModelViewSet):
     queryset = EquipmentRestrictedMaterial.objects.all()
     serializer_class = EquipmentRestrictedMaterialSerializer
     filterset_fields = ['equipment_id', 'material_id']
+    ordering_fields = ['equipment_id', 'material_id']
 
 class IssueReportViewSet(viewsets.ModelViewSet):
     queryset = IssueReport.objects.all().order_by('issue_report_id')

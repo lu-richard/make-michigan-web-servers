@@ -278,7 +278,7 @@ class MakerspaceStaff(models.Model):
         db_table = "makerspace_staff"
 
 class EquipmentModelCapability(models.Model):
-    pk = models.CompositePrimaryKey("equipment_model_id", "capability_id")
+    pk = models.CompositePrimaryKey("capability_id", "equipment_model_id")
     equipment_model = models.ForeignKey(EquipmentModel, on_delete=models.CASCADE)
     capability = models.ForeignKey(Capability, on_delete=models.CASCADE)
 
