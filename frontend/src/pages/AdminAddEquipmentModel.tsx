@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Capability } from '@/types/api';
+import type { Capability, EquipmentModel } from '@/types/api';
 
 const useAddEquipmentModelData = () => {
     const [capabilities, setCapabilities] = useState<Capability[]>([]);
@@ -222,9 +222,7 @@ function AdminAddEquipmentModel() {
                                             throw new Error("Failed to submit due to missing fields");
                                         }
 
-                                        const newUUID = self.crypto.randomUUID();
-                                        const response = await apiPost('/equipment-models/', {
-                                                equipment_model_id: newUUID,
+                                        const response = await apiPost<EquipmentModel>('/equipment-models/', {
                                                 model: model,
                                                 make: make,
                                                 equipment_type: type,
@@ -236,7 +234,7 @@ function AdminAddEquipmentModel() {
                                         );
                                         const capPromises = Array.from(selectedCaps).map((c) => apiPost('/equipment-model-capabilities/', {
                                             capability_id: c.capability_id,
-                                            equipment_model_id: newUUID
+                                            equipment_model_id: response.equipment_model_id
                                         }));
                                         const capResponses = await Promise.all(capPromises);
 

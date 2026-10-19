@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
-import type { Material, Makerspace, CredentialModel, MakerspaceCredentialModel, EquipmentModel } from '@/types/api';
+import type { Material, Makerspace, CredentialModel, MakerspaceCredentialModel, EquipmentModel, Equipment } from '@/types/api';
 
 const useAddEquipmentData = () => {
     const [selectedSpace, setSelectedSpace] = useState<Makerspace | null>(null);
@@ -371,9 +371,7 @@ function AdminAddEquipmentModel() {
                                             throw new Error("Failed to submit due to missing fields");
                                         }
 
-                                        const newUUID = self.crypto.randomUUID();
-                                        const response = await apiPost('/equipment/', {
-                                                equipment_id: newUUID,
+                                        const response = await apiPost<Equipment>('/equipment/', {
                                                 equipment_name: name,
                                                 last_serviced: lastServiced === undefined ? null : convertDate(lastServiced),
                                                 equipment_model_id: selectedEqModel.equipment_model_id,
@@ -384,11 +382,11 @@ function AdminAddEquipmentModel() {
                                             }
                                         );
                                         const accMatPromises = Array.from(selectedAccMats).map((m) => apiPost('/equipment-accepted-materials/', {
-                                            equipment_id: newUUID,
+                                            equipment_id: response.equipment_id,
                                             material_id: m.material_id
                                         }));
                                         const rejMatPromises = Array.from(selectedRejMats).map((m) => apiPost('/equipment-rejected-materials/', {
-                                            equipment_id: newUUID,
+                                            equipment_id: response.equipment_id,
                                             material_id: m.material_id
                                         }));
                                         const matResponses = await Promise.all([...accMatPromises, ...rejMatPromises]);
