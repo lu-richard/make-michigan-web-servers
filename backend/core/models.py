@@ -330,8 +330,14 @@ class ViewCredentialsAdmin(models.Model):
     recipient_user_id = models.UUIDField()
     credential_id = models.UUIDField()
     completion_date = models.DateField(null=True)
+    expiration_date = models.DateField(null=True)
     credential_model_name = models.CharField(max_length=255)
     credential_status = models.CharField(max_length=20, choices=CredentialStatus.choices)
+    author_user_id = models.UUIDField()
+    author_first_name = models.CharField(max_length=100)
+    author_middle_initial = models.CharField(max_length=1, blank=True, null=True)
+    author_last_name = models.CharField(max_length=100)
+    issuing_makerspace_id = models.UUIDField()
     makerspace_name = models.CharField(max_length=255)
 
     class Meta:

@@ -2,13 +2,13 @@
 import { Link } from 'react-router-dom';
 import supabase from '../lib/supabase';
 import { useAppContext } from '../context/AppContext';
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Logo from '../assets/pngs/logo.png';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { DropdownMenu, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { Button } from './ui/button';
 
-void React
+// void React
 // import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 // const useNavbarData = () => {

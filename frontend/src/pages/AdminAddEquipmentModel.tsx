@@ -15,7 +15,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import labels from '@/constants/labels';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {

@@ -187,8 +187,14 @@ export interface ViewCredentialsAdmin {
     recipient_user_id: string;
     credential_id: string;
     completion_date: string | null;
+    expiration_date: string | null;
     credential_model_name: string;
     credential_status: CredentialStatus;
+    author_user_id: string;
+    author_first_name: string;
+    author_middle_initial: string | null;
+    author_last_name: string;
+    issuing_makerspace_id: string;
     makerspace_name: string;
 }
 
