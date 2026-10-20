@@ -385,7 +385,7 @@ function AdminAddEquipmentModel() {
                                             equipment_id: response.equipment_id,
                                             material_id: m.material_id
                                         }));
-                                        const rejMatPromises = Array.from(selectedRejMats).map((m) => apiPost('/equipment-rejected-materials/', {
+                                        const rejMatPromises = Array.from(selectedRejMats).map((m) => apiPost('/equipment-restricted-materials/', {
                                             equipment_id: response.equipment_id,
                                             material_id: m.material_id
                                         }));
