@@ -73,7 +73,7 @@ const useMakerProfileData = () => {
 };
 
 function MakerProfile() {
-    const { profile, userCredentials, loading, errorMessage } = useMakerProfileData();
+    const { profile, loading, errorMessage } = useMakerProfileData();
     
     return (
         <>

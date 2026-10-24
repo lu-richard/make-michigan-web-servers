@@ -4,7 +4,7 @@
 
 // Enums (backend/core/models.py TextChoices)
 
-export type Role = "student" | "alum" | "staff" | "shop_manager" | "shop_mentor";
+export type Role = "undergrad_student" | "grad_student" | "alum" | "staff" | "shop_manager" | "shop_mentor";
 export type SystemTheme = "light" | "dark";
 export type Locale =
     | "en_US" | "en_GB" | "zh_CN" | "es_ES" | "es_MX" | "es_LA" | "hi_IN" | "ar"
