@@ -26,6 +26,7 @@ function SignUp() {
     const [roles, setRoles] = useState<Set<string>>(new Set());
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const { setProfile } = useAppContext();
 
     // Funtion for signing a new user up
     const signUpUser = async () => {
@@ -62,8 +63,6 @@ function SignUp() {
                 is_active: 1,
                 is_staff: 0
             });
-            const { setProfile } = useAppContext();
-            
             setProfile!(response);
         }
         catch (e) {
