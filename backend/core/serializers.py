@@ -4,6 +4,8 @@ from core.models import *
 # Standard Table Serializers
 
 class UserSerializer(serializers.ModelSerializer):
+    user_id = serializers.UUIDField()
+
     class Meta:
         model = User
         fields = ['user_id', 'uniqname', 'first_name', 'middle_initial', 'last_name', 'image_url', 'pronouns', 'roles', 'created_at', 'system_theme', 'locale', 'is_active', 'is_staff']
