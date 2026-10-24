@@ -188,6 +188,7 @@ export interface ViewCredentialsAdmin {
     completion_date: string | null;
     expiration_date: string | null;
     credential_model_name: string;
+    credential_model_id: string;
     credential_status: CredentialStatus;
     author_user_id: string;
     author_first_name: string;

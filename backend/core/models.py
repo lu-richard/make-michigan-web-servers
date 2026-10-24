@@ -332,6 +332,7 @@ class ViewCredentialsAdmin(models.Model):
     completion_date = models.DateField(null=True)
     expiration_date = models.DateField(null=True)
     credential_model_name = models.CharField(max_length=255)
+    credential_model_id = models.UUIDField()
     credential_status = models.CharField(max_length=20, choices=CredentialStatus.choices)
     author_user_id = models.UUIDField()
     author_first_name = models.CharField(max_length=100)

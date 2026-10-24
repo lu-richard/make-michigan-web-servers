@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { apiGetList } from '@/lib/api';
 import type { AdminCredential } from '@/types/types';
 import Loading from './Loading';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Link } from 'react-router-dom';
 
 // const context = useContext(AppContext);
 // // console.log('App context in Dashboard:', context);
@@ -73,7 +75,7 @@ const useMakerProfileData = () => {
 };
 
 function MakerProfile() {
-    const { profile, loading, errorMessage } = useMakerProfileData();
+    const { profile, userCredentials, loading, errorMessage } = useMakerProfileData();
     
     return (
         <>
@@ -98,7 +100,37 @@ function MakerProfile() {
                                     </Button>
                                 </CardHeader>
                                 <CardContent>
-                                    
+                                    {/* recipient_user_id: string;
+                                        credential_id: string;
+                                        completion_date: string | null;
+                                        expiration_date: string | null;
+                                        credential_model_name: string;
+                                        credential_status: CredentialStatus;
+                                        author_user_id: string;
+                                        author_first_name: string;
+                                        author_middle_initial: string | null;
+                                        author_last_name: string;
+                                        issuing_makerspace_id: string;
+                                        makerspace_name: string; */}
+                                    {
+                                        userCredentials.map(
+                                            (uc) =>
+                                            <Card key={uc.credential_id} className="w-fit p-0">
+                                                <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
+                                                    <div className="p-4">
+                                                        <CardTitle className="text-2xl">{uc.credential_model_name}</CardTitle>
+                                                        <p>{uc.makerspace_name}</p>
+                                                        <p>Certified: {uc.completion_date === null ? "Unknown" : uc.completion_date}</p>
+                                                    </div>
+                                                    <div className="bg-black flex flex-col justify-center align-center">
+                                                        <Link to={`/trainings/training_detail/${uc.credential_model_id}`}>
+                                                            <ArrowForwardIcon />
+                                                        </Link>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )
+                                    }
                                     
                                 </CardContent>
                                 
