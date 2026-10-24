@@ -29,7 +29,6 @@ export interface User {
     roles: Role[];
     created_at: string;
     system_theme: SystemTheme;
-    is_grad_student: boolean;
     locale: Locale;
     is_active: boolean;
     is_staff: boolean;

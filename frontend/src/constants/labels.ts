@@ -28,11 +28,6 @@ const labels = {
     spindle_speed_range_high_rpm: "Spindle Speed Range - High (rpm)",
     max_speed_rpm: "Max Speed (rpm)",
     min_speed_rpm: "Min Speed (rpm)",
-    staff: "Staff",
-    shop_mentor: "Shop Mentor",
-    shop_manager: "Shop Manager",
-    alum: "Alumni",
-    student: "Student",
     active_user: "Active",
     pending_user: "Pending",
     operator: "Operator",
@@ -129,6 +124,13 @@ const labels = {
     coatings: "Coatings",
     "16g_aluminum": "16G Aluminum",
     "7072_aluminum": "7072 Aluminum",
+    undergrad_student: "Undergraduate Student",
+    grad_student: "Graduate Student",
+    shop_mentor: "Shop Mentor",
+    staff: "Staff",
+    shop_manager: "Shop Manager",
+    alum: "Alumni",
 };
+
 
 export default labels;

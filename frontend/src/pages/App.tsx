@@ -94,7 +94,7 @@ function App() {
         }
       }
       catch (e) {
-        throw e;
+        throw (e as Error).message;
       }
     };
 

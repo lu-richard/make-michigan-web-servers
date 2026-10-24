@@ -128,7 +128,6 @@ class Command(BaseCommand):
                 pronouns=none_if_empty(row["pronouns"]),
                 roles=parse_json(row["roles"]) or [],
                 system_theme=row["system_theme"],
-                is_grad_student=parse_bool(row["is_grad_student"]),
                 locale=row["locale"],
             )
             User.objects.filter(pk=user.pk).update(created_at=parse_ts(row["created_at"]))

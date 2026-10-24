@@ -45,7 +45,8 @@ class MakerspaceTier(models.TextChoices):
     BASIC = "basic", "basic"
 
 class Role(models.TextChoices):
-    STUDENT = "student", "student"
+    UNDERGRAD_STUDENT = "undergrad_student", "undergrad_student"
+    GRAD_STUDENT = "grad_student", "grad_student"
     ALUM = "alum", "alum"
     STAFF = "staff", "staff"
     SHOP_MANAGER = "shop_manager", "shop_manager"
@@ -119,7 +120,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     roles = models.JSONField(default=list, blank=True, validators=[validate_roles])
     created_at = models.DateTimeField(auto_now_add=True)
     system_theme = models.CharField(max_length=10, choices=SystemTheme.choices, default=SystemTheme.LIGHT)
-    is_grad_student = models.BooleanField(default=False)
     locale = models.CharField(max_length=10, choices=Locale.choices, default=Locale.EN_US)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
