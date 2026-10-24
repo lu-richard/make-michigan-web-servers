@@ -56,7 +56,7 @@ function SignUp() {
                 middle_initial: middleInitial === "" ? null : middleInitial,
                 last_name: lastName,
                 pronouns: pronouns === "" ? null : pronouns,
-                roles: JSON.stringify(roles),
+                roles: Array.from(roles),
                 system_theme: "light",
                 locale: "en_US",
                 is_active: 1,
