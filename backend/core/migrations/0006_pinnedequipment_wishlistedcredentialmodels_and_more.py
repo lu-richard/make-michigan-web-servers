@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_makerspace_detail_pages_staff_ids'),
+        ('core', '0005_remove_user_is_grad_student_and_more'),
     ]
 
     operations = [
@@ -35,10 +35,6 @@ class Migration(migrations.Migration):
                 ('makerspace_id', models.UUIDField()),
                 ('makerspace_name', models.CharField(max_length=255)),
             ],
-        ),
-        migrations.RemoveField(
-            model_name='user',
-            name='is_grad_student',
         ),
         migrations.CreateModel(
             name='PinnedEquipment',
