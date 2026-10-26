@@ -84,6 +84,16 @@ class ViewMakerspaceCardsViewSet(viewsets.ModelViewSet):
     search_fields = ['makerspace_name', 'building', 'rooms', 'description', 'themes']
     ordering_fields = ['makerspace_name', 'building']
 
+class ViewPinnedEquipmentViewSet(viewsets.ModelViewSet):
+    queryset = ViewPinnedEquipment.objects.all()
+    serializer_class = ViewPinnedEquipmentSerializer
+    filterset_fields = ['user_id']
+
+class ViewWishlistedCredentialModelViewSet(viewsets.ModelViewSet):
+    queryset = ViewWishlistedCredentialModels.objects.all()
+    serializer_class = ViewWishlistedCredentialModelSerializer
+    filterset_fields = ['user_id']
+
 # Standard Table ViewSets
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -168,3 +178,12 @@ class IssueReportViewSet(viewsets.ModelViewSet):
     queryset = IssueReport.objects.all().order_by('issue_report_id')
     serializer_class = IssueReportSerializer
     pagination_class = StandardResultsSetPagination
+    filterset_fields = ['reporter_id']
+
+class PinnedEquipmentViewSet(viewsets.ModelViewSet):
+    queryset = PinnedEquipment.objects.all()
+    serializer_class = PinnedEquipmentSerializer
+
+class WishlistedCredentialModelViewSet(viewsets.ModelViewSet):
+    queryset = WishlistedCredentialModels.objects.all()
+    serializer_class = WishlistedCredentialModelSerializer

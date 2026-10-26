@@ -111,6 +111,22 @@ class IssueReportSerializer(serializers.ModelSerializer):
         model = IssueReport
         fields = ['issue_report_id', 'created_at', 'last_updated', 'reporter_user_id', 'issue_type', 'description', 'is_resolved', 'equipment_id', 'overseer_user_id', 'title']
 
+class PinnedEquipmentSerializer(serializers.ModelSerializer):
+    user_id = serializers.UUIDField()
+    equipment_id = serializers.UUIDField()
+
+    class Meta:
+        model = PinnedEquipment
+        fields = ['user_id', 'equipment_id', 'created_at', 'last_updated']
+
+class WishlistedCredentialModelSerializer(serializers.ModelSerializer):
+    user_id = serializers.UUIDField()
+    credential_model_id = serializers.UUIDField()
+
+    class Meta:
+        model = WishlistedCredentialModels
+        fields = ['user_id', 'credential_model_id', 'created_at', 'last_updated']
+
 # SQL View Serializers
 
 class ViewUserTrainingsSerializer(serializers.ModelSerializer):
@@ -156,4 +172,14 @@ class ViewEquipmentCardsSerializer(serializers.ModelSerializer):
 class ViewMakerspaceCardsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ViewMakerspaceCards
+        fields = '__all__'
+
+class ViewPinnedEquipmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewPinnedEquipment
+        fields = '__all__'
+
+class ViewWishlistedCredentialModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewWishlistedCredentialModels
         fields = '__all__'

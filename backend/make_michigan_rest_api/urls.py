@@ -14,6 +14,8 @@ router.register(r"view-credentials-admin", views.ViewCredentialsAdminViewSet)
 router.register(r"view-equipment-detail-pages", views.ViewEquipmentDetailPagesViewSet)
 router.register(r"view-issue-report-cards", views.ViewIssueReportCardsViewSet)
 router.register(r"view-makerspace-detail-pages", views.ViewMakerspaceDetailPagesViewSet)
+router.register(r"view-pinned-equipment", views.ViewPinnedEquipmentViewSet)
+router.register(r"view-wishlisted-credential-models", views.ViewWishlistedCredentialModelViewSet)
 
 router.register(r"credential-summary", views.CredentialSummaryViewSet)
 router.register(r"view-equipment-cards", views.ViewEquipmentCardsViewSet)
@@ -36,6 +38,8 @@ router.register(r"equipment-model-capabilities", views.EquipmentModelCapabilityV
 router.register(r"equipment-accepted-materials", views.EquipmentAcceptedMaterialViewSet)
 router.register(r"equipment-restricted-materials", views.EquipmentRestrictedMaterialViewSet)
 router.register(r"issue-reports", views.IssueReportViewSet)
+router.register(r"pinned-equipment", views.PinnedEquipmentViewSet)
+router.register(r"wishlisted-credential-models", views.WishlistedCredentialModelViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),

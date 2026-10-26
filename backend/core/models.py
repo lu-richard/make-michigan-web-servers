@@ -132,8 +132,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = "profiles"
 
-# Lookup tables
-
 class CredentialModel(models.Model):
     credential_model_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     credential_model_name = models.CharField(max_length=255)
@@ -278,7 +276,7 @@ class MakerspaceStaff(models.Model):
         db_table = "makerspace_staff"
 
 class EquipmentModelCapability(models.Model):
-    pk = models.CompositePrimaryKey("capability_id", "equipment_model_id")
+    pk = models.CompositePrimaryKey("equipment_model_id", "capability_id")
     equipment_model = models.ForeignKey(EquipmentModel, on_delete=models.CASCADE)
     capability = models.ForeignKey(Capability, on_delete=models.CASCADE)
 
@@ -300,6 +298,26 @@ class EquipmentRestrictedMaterial(models.Model):
 
     class Meta:
         db_table = "equipment_restricted_materials"
+
+class PinnedEquipment(models.Model):
+    pk = models.CompositePrimaryKey("user_id", "equipment_id")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = "pinned_equipment"
+
+class WishlistedCredentialModels(models.Model):
+    pk = models.CompositePrimaryKey("user_id", "credential_model_id")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "wishlisted_credential_models"
 
 # SQL Views (created via a RunSQL migration -- see core/migrations/0002_create_views.py)
 
@@ -460,3 +478,21 @@ class ViewMakerspaceCards(models.Model):
     class Meta:
         managed = False  # Created from a view. Don't remove.
         db_table = 'view_makerspace_cards'
+
+class ViewPinnedEquipment(models.Model):
+    pk = models.CompositePrimaryKey('user_id', 'equipment_id')
+    user_id = models.UUIDField()
+    equipment_id = models.UUIDField()
+    equipment_model_name = models.CharField(max_length=255)
+    equipment_type = models.CharField(max_length=100)
+    manufacturer_image_urls = models.JSONField(null=True)
+    makerspace_name = models.CharField(max_length=255)
+
+class ViewWishlistedCredentialModels(models.Model):
+    pk = models.CompositePrimaryKey('user_id', 'credential_model_id')
+    user_id = models.UUIDField()
+    credential_model_id = models.UUIDField()
+    credential_model_name = models.CharField(max_length=255)
+    credential_type = models.CharField(max_length=20, choices=CredentialType.choices)
+    makerspace_id = models.UUIDField()
+    makerspace_name = models.CharField(max_length=255)
