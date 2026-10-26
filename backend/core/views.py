@@ -96,7 +96,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     pagination_class = StandardResultsSetPagination
     filterset_fields = ['uniqname']
-    # permission_classes = [permissions.isAuthenticated]
 
 class MakerspaceViewSet(viewsets.ModelViewSet):
     queryset = Makerspaces.objects.all()

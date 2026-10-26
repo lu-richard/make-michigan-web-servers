@@ -33,3 +33,5 @@ dist/
 Thumbs.db
 .vscode/
 .idea/
+# ── OIDC secrets ──
+frontend/secrets/oidc_secrets.conf

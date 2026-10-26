@@ -11,5 +11,7 @@ services:
     restart: always
     ports:
       - "80:80"
+    volumes:
+      - ./frontend/secrets:/usr/local/apache2/conf/secrets:ro
     depends_on:
       - backend
