@@ -122,10 +122,11 @@ class PinnedEquipmentSerializer(serializers.ModelSerializer):
 class WishlistedCredentialModelSerializer(serializers.ModelSerializer):
     user_id = serializers.UUIDField()
     credential_model_id = serializers.UUIDField()
-
+    makerspace_id = serializers.UUIDField()
+    
     class Meta:
         model = WishlistedCredentialModels
-        fields = ['user_id', 'credential_model_id', 'created_at', 'last_updated']
+        fields = ['user_id', 'credential_model_id', 'makerspace_id', 'created_at', 'last_updated']
 
 # SQL View Serializers
 

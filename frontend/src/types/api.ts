@@ -175,6 +175,7 @@ export interface PinnedEquipment {
 export interface WishlistedCredentialModel {
     user_id: string;
     credential_model_id: string;
+    makerspace_id: string;
 }
 
 // Views / materialized views (managed=False models backed by MySQL views)
@@ -322,23 +323,6 @@ export interface ViewWishlistedCredentialModel {
     makerspace_id: string;
     makerspace_name: string;
 }
-
-// class ViewPinnedEquipment(models.Model):
-//     pk = models.CompositePrimaryKey('user_id', 'equipment_id')
-//     user_id = models.UUIDField()
-//     equipment_id = models.UUIDField()
-//     equipment_model_name = models.CharField(max_length=255)
-//     equipment_type = models.CharField(max_length=100)
-//     manufacturer_image_urls = models.JSONField(null=True)
-//     makerspace_name = models.CharField(max_length=255)
-
-// class ViewWishlistedCredentialModels(models.Model):
-//     pk = models.CompositePrimaryKey('user_id', 'credential_model_id')
-//     user_id = models.UUIDField()
-//     credential_model_id = models.UUIDField()
-//     credential_model_name = models.CharField(max_length=255)
-//     credential_type = models.CharField(max_length=20, choices=CredentialType.choices)
-//     makerspace_name = models.CharField(max_length=255)
 
 // DRF LimitOffsetPagination envelope
 

@@ -313,6 +313,8 @@ class WishlistedCredentialModels(models.Model):
     pk = models.CompositePrimaryKey("user_id", "credential_model_id")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE)
+    makerspace = models.ForeignKey(Makerspace,
+    on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
@@ -488,6 +490,10 @@ class ViewPinnedEquipment(models.Model):
     manufacturer_image_urls = models.JSONField(null=True)
     makerspace_name = models.CharField(max_length=255)
 
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'view_pinned_equipment'
+
 class ViewWishlistedCredentialModels(models.Model):
     pk = models.CompositePrimaryKey('user_id', 'credential_model_id')
     user_id = models.UUIDField()
@@ -496,3 +502,7 @@ class ViewWishlistedCredentialModels(models.Model):
     credential_type = models.CharField(max_length=20, choices=CredentialType.choices)
     makerspace_id = models.UUIDField()
     makerspace_name = models.CharField(max_length=255)
+
+    class Meta:
+        managed = False  # Created from a view. Don't remove.
+        db_table = 'view_wishlisted_credential_models'
