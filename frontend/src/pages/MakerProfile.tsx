@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiGetList } from '@/lib/api';
-import type { AdminCredential } from '@/types/types';
+import type { AdminCredential, PinnedEquipment, WishlistedCredentialModel } from '@/types/types';
 import Loading from './Loading';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Link } from 'react-router-dom';
@@ -43,19 +43,31 @@ import { Link } from 'react-router-dom';
 const useMakerProfileData = () => {
     const { profile } = useAppContext();
     const [userCredentials, setUserCredentials] = useState<AdminCredential[]>([]);
+    const [pinnedEquipment, setPinnedEquipment] = useState<PinnedEquipment[]>([]);
+    const [wishlistedCredentialModels, setWishlistedCredentialModels] = useState<WishlistedCredentialModel[]>([]);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
-        const fetchUserCredentials = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
 
-                const userCreds = await apiGetList<AdminCredential>('/view-credentials-admin/', {
-                    recipient_user_id: profile!.user_id
-                });
+                const [userCreds, pinnedEq, wishlistedCredModels] = await Promise.all([
+                    apiGetList<AdminCredential>('/view-credentials-admin/', {
+                        recipient_user_id: profile!.user_id
+                    }),
+                    apiGetList<PinnedEquipment>('/view-pinned-equipment/', {
+                        user_id: profile!.user_id
+                    }),
+                    apiGetList<WishlistedCredentialModel>('/view-wishlisted-credential-models/', {
+                        user_id: profile!.user_id
+                    })
+                ]);
 
                 setUserCredentials(userCreds);
+                setPinnedEquipment(pinnedEq);
+                setWishlistedCredentialModels(wishlistedCredModels);
                 console.log(profile!.user_id);
                 console.log(userCreds);
             }
@@ -68,14 +80,14 @@ const useMakerProfileData = () => {
             }
         };
         
-        fetchUserCredentials();
+        fetchData();
     }, []);
     
-    return { profile, userCredentials, loading, errorMessage};
+    return { profile, userCredentials, pinnedEquipment, wishlistedCredentialModels, loading, errorMessage};
 };
 
 function MakerProfile() {
-    const { profile, userCredentials, loading, errorMessage } = useMakerProfileData();
+    const { profile, userCredentials, pinnedEquipment, wishlistedCredentialModels, loading, errorMessage } = useMakerProfileData();
     
     return (
         <>
@@ -122,9 +134,9 @@ function MakerProfile() {
                                                         <p>{uc.makerspace_name}</p>
                                                         <p>Certified: {uc.completion_date === null ? "Unknown" : uc.completion_date}</p>
                                                     </div>
-                                                    <div className="bg-black flex flex-col justify-center align-center">
-                                                        <Link to={`/trainings/training_detail/${uc.credential_model_id}`}>
-                                                            <ArrowForwardIcon />
+                                                    <div className="bg-black flex flex-col justify-center align-center px-2">
+                                                        <Link to={`/dashboard/trainings/training-detail/${uc.issuing_makerspace_id}/${uc.credential_model_id}`}>
+                                                            <ArrowForwardIcon className="text-white min-w-10 min-h-10" />
                                                         </Link>
                                                     </div>
                                                 </CardContent>
@@ -143,8 +155,25 @@ function MakerProfile() {
                                     </Button>
                                 </CardHeader>
                                 <CardContent>
-                                    
-                                    
+                                    {
+                                        pinnedEquipment.map(
+                                            (pe) =>
+                                            <Card key={pe.equipment_id} className="w-fit p-0">
+                                                <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
+                                                    <div className="p-4">
+                                                        <CardTitle className="text-2xl">{pe.equipment_model_name}</CardTitle>
+                                                        <p>{pe.equipment_type}</p>
+                                                        <p>{pe.makerspace_name}</p>
+                                                    </div>
+                                                    <div className="bg-black flex flex-col justify-center align-center px-2">
+                                                        <Link to={`/equipment-detail/${pe.equipment_id}`}>
+                                                            <ArrowForwardIcon className="text-white min-w-10 min-h-10" />
+                                                        </Link>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )
+                                    }
                                 </CardContent>
                                 
                             </Card>
@@ -157,7 +186,25 @@ function MakerProfile() {
                                 </Button>
                             </CardHeader>
                             <CardContent>
-                                
+                                {
+                                    wishlistedCredentialModels.map(
+                                        (wcm) =>
+                                        <Card key={wcm.credential_model_id} className="w-fit p-0">
+                                            <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
+                                                <div className="p-4">
+                                                    <CardTitle className="text-2xl">{wcm.credential_model_name}</CardTitle>
+                                                    <p>{wcm.credential_type}</p>
+                                                    <p>{wcm.makerspace_name}</p>
+                                                </div>
+                                                <div className="bg-black flex flex-col justify-center align-center px-2">
+                                                    <Link to={`/dashboard/trainings/training-detail/${wcm.makerspace_id}/${wcm.credential_model_id}`}>
+                                                        <ArrowForwardIcon className="text-white min-w-10 min-h-10" />
+                                                    </Link>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    )
+                                }
                             </CardContent>
                             
                         </Card>

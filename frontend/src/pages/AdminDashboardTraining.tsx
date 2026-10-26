@@ -5,6 +5,7 @@ import type { ProfileData } from '../types/types';
 import { apiGetList } from '../lib/api';
 import Loading from './Loading';
 import AdminProfileListItem from '../components/AdminProfileListItem';
+import { Button } from '@/components/ui/button';
 
 const useAdminDashboardTrainingData = () => {
     const [profiles, setProfiles] = useState<ProfileData[]>([]);
@@ -72,10 +73,10 @@ function AdminDashboardTraining() {
                             <div>
                                 {profiles.map((profileListItem) => <AdminProfileListItem key={profileListItem["user_id"]} profileListItem={profileListItem} />)}
                             </div>
-                            <p className={styles["num-results"]}>Results 1 - {profiles.length}</p> :
+                            <p className={styles["num-results"]}>Results 1 - {profiles.length}</p>
                             {
                                 profiles.length === searchLimit &&
-                                <button type="button" className={styles["more-results-button"]} onClick={() => setSearchLimit((searchLimit) => searchLimit + 10)}>See More</button>
+                                <Button onClick={() => setSearchLimit((searchLimit) => searchLimit + 10)}>See More</Button>
                             }
                         </> :
                         <p className={styles["no-results-message"]}>No results found.</p>

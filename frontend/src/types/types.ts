@@ -10,6 +10,8 @@ import type {
     MakerspaceCredentialModel,
     ViewMakerspaceDetailPages,
     ViewEquipmentDetailPages,
+    ViewPinnedEquipment,
+    ViewWishlistedCredentialModel,
 } from "./api";
 
 // Card Data Types
@@ -37,7 +39,8 @@ export interface SkillTreeContext {
     completedModelIds: Set<string>
     credsLoading: boolean
 }
-
+export type PinnedEquipment = ViewPinnedEquipment;
+export type WishlistedCredentialModel = ViewWishlistedCredentialModel;
 
 // Detail Page Data Types
 export type MakerspaceDetailData = ViewMakerspaceDetailPages;

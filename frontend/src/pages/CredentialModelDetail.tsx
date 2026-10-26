@@ -60,7 +60,7 @@ function CredentialModelDetail() {
     return (
         <>
             {
-                loading ? <div className="h-[80vh]"><Loading /></div> :
+                loading || !selectedMakerspace ? <div className="h-[80vh]"><Loading /></div> :
                 credentialModel ?
                 <div className="relative w-full h-full">
                     <Link to="/dashboard/trainings" className="absolute top-5 left-5 text-[#fff]">
