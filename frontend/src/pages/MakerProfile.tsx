@@ -13,6 +13,7 @@ import type { AdminCredential, PinnedEquipment, WishlistedCredentialModel } from
 import Loading from './Loading';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Link } from 'react-router-dom';
+import supabase from '@/lib/supabase';
 
 // const context = useContext(AppContext);
 // // console.log('App context in Dashboard:', context);
@@ -45,6 +46,7 @@ const useMakerProfileData = () => {
     const [userCredentials, setUserCredentials] = useState<AdminCredential[]>([]);
     const [pinnedEquipment, setPinnedEquipment] = useState<PinnedEquipment[]>([]);
     const [wishlistedCredentialModels, setWishlistedCredentialModels] = useState<WishlistedCredentialModel[]>([]);
+    const [equipmentImages, setEquipmentImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -65,8 +67,22 @@ const useMakerProfileData = () => {
                     })
                 ]);
 
+                const eqImages: string[] = [];
+
+                pinnedEq.forEach((pe) => {
+                    if (pe["manufacturer_image_urls"] && pe["manufacturer_image_urls"].length > 0) {
+                        const { data } = supabase
+                            .storage
+                            .from('equipment-model-photos')
+                            .getPublicUrl(pe["manufacturer_image_urls"][0]);
+                        
+                        eqImages.push(data.publicUrl);
+                    }
+                });
+
                 setUserCredentials(userCreds);
                 setPinnedEquipment(pinnedEq);
+                setEquipmentImages(eqImages);
                 setWishlistedCredentialModels(wishlistedCredModels);
                 console.log(profile!.user_id);
                 console.log(userCreds);
@@ -83,11 +99,11 @@ const useMakerProfileData = () => {
         fetchData();
     }, []);
     
-    return { profile, userCredentials, pinnedEquipment, wishlistedCredentialModels, loading, errorMessage};
+    return { profile, userCredentials, pinnedEquipment, equipmentImages, wishlistedCredentialModels, loading, errorMessage};
 };
 
 function MakerProfile() {
-    const { profile, userCredentials, pinnedEquipment, wishlistedCredentialModels, loading, errorMessage } = useMakerProfileData();
+    const { profile, userCredentials, pinnedEquipment, equipmentImages, wishlistedCredentialModels, loading, errorMessage } = useMakerProfileData();
     
     return (
         <>
@@ -112,18 +128,6 @@ function MakerProfile() {
                                     </Button>
                                 </CardHeader>
                                 <CardContent>
-                                    {/* recipient_user_id: string;
-                                        credential_id: string;
-                                        completion_date: string | null;
-                                        expiration_date: string | null;
-                                        credential_model_name: string;
-                                        credential_status: CredentialStatus;
-                                        author_user_id: string;
-                                        author_first_name: string;
-                                        author_middle_initial: string | null;
-                                        author_last_name: string;
-                                        issuing_makerspace_id: string;
-                                        makerspace_name: string; */}
                                     {
                                         userCredentials.map(
                                             (uc) =>
@@ -151,19 +155,22 @@ function MakerProfile() {
                                 <CardHeader className="flex flex-row justify-between px-12 py-3 bg-navy-blue">
                                     <CardTitle className="text-2xl font-bold text-white">Pinned Equipment</CardTitle>
                                     <Button className="bg-maize text-black">
-                                        Explore All Equipment
+                                        <Link to={`/equipment`}>
+                                            Explore All Equipment
+                                        </Link>
                                     </Button>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="flex flex-row gap-6 flex-wrap">
                                     {
                                         pinnedEquipment.map(
-                                            (pe) =>
+                                            (pe, i) =>
                                             <Card key={pe.equipment_id} className="w-fit p-0">
                                                 <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
                                                     <div className="p-4">
                                                         <CardTitle className="text-2xl">{pe.equipment_model_name}</CardTitle>
                                                         <p>{pe.equipment_type}</p>
                                                         <p>{pe.makerspace_name}</p>
+                                                        <img className="max-w-24" src={equipmentImages[i]} />
                                                     </div>
                                                     <div className="bg-black flex flex-col justify-center align-center px-2">
                                                         <Link to={`/equipment-detail/${pe.equipment_id}`}>
@@ -182,10 +189,13 @@ function MakerProfile() {
                             <CardHeader className="flex flex-row justify-between px-12 py-3 bg-navy-blue">
                                 <CardTitle className="text-2xl font-bold text-white">Wishlist</CardTitle>
                                 <Button className="bg-maize text-black">
-                                    Explore All Trainings
+                                    <Link to={`trainings`}>
+                                        Explore All Trainings
+                                    </Link>
                                 </Button>
+                                
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="flex flex-row gap-6 flex-wrap">
                                 {
                                     wishlistedCredentialModels.map(
                                         (wcm) =>
