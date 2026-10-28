@@ -9,8 +9,6 @@ services:
   frontend:
     build: ./frontend
     restart: always
-    ports:
-      - "80:80"
     volumes:
       - ./frontend/secrets:/usr/local/apache2/conf/secrets:ro
     expose:
