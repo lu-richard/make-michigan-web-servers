@@ -23,6 +23,7 @@ import ProfileHome from "../pages/ProfileHome";
 import MyTrainings from "../pages/MyTrainings";
 import SkillTree from "../pages/SkillTree";
 import AdminAddEquipmentModel from "../pages/AdminAddEquipmentModel";
+import AdminAddEquipment from "@/pages/AdminAddEquipment";
 import AdminDashboardUsageStatsFacility from "../pages/AdminDashboardUsageStatsFacility";
 import AdminDashboardUsageStatsEquipment from "../pages/AdminDashboardUsageStatsEquipment";
 import AdminDashboardUsageStatsUser from "../pages/AdminDashboardUsageStatsUser";
@@ -83,6 +84,7 @@ const routes = [
                                 ],
                             },
                             { path: 'add-equipment-model', element: <AdminAddEquipmentModel/> },
+                            { path: 'add-equipment', element: <AdminAddEquipment /> },
                         ]
                     },
                     { path: 'admin-profile-detail/:id', element: <AdminProfileDetail /> },

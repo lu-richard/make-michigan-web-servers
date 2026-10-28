@@ -3,6 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import React, { useState, useEffect } from "react";
 import supabase from "../lib/supabase";
 import type { ProfileData } from "../types/types";
+import { apiGetOrNull } from "../lib/api";
 import { useParams } from 'react-router-dom';
 import Loading from "./Loading";
 import ProfileInfo from "./ProfileInfo";
@@ -10,8 +11,6 @@ import ProfileSettings from "./ProfileSettings";
 import ProfileCertifications from "./ProfileCertifications";
 
 void React
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const useProfileHomeData = () => {
     const { id } = useParams();
@@ -25,19 +24,7 @@ const useProfileHomeData = () => {
             try {
                 setLoading(true);
 
-                const response = await fetch(`${VITE_API_BASE_URL}/profiles/${id}/`);
-
-                if (response.status === 404) {
-                    setProfile(null);
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch profile: ${response.status}`);
-                }
-
-                const data = await response.json();
-
+                const data = await apiGetOrNull<ProfileData>(`/profiles/${id}/`);
                 setProfile(data);
             }
             catch (e) {

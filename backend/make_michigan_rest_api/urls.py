@@ -14,8 +14,8 @@ router.register(r"view-credentials-admin", views.ViewCredentialsAdminViewSet)
 router.register(r"view-equipment-detail-pages", views.ViewEquipmentDetailPagesViewSet)
 router.register(r"view-issue-report-cards", views.ViewIssueReportCardsViewSet)
 router.register(r"view-makerspace-detail-pages", views.ViewMakerspaceDetailPagesViewSet)
-
-# SQL Materialized Views
+router.register(r"view-pinned-equipment", views.ViewPinnedEquipmentViewSet)
+router.register(r"view-wishlisted-credential-models", views.ViewWishlistedCredentialModelViewSet)
 
 router.register(r"credential-summary", views.CredentialSummaryViewSet)
 router.register(r"view-equipment-cards", views.ViewEquipmentCardsViewSet)
@@ -23,7 +23,7 @@ router.register(r"view-makerspace-cards", views.ViewMakerspaceCardsViewSet)
 
 # Standard Tables
 
-router.register(r"profiles", views.ProfileViewSet)
+router.register(r"profiles", views.UserViewSet)
 router.register(r"makerspaces", views.MakerspaceViewSet)
 router.register(r"equipment", views.EquipmentViewSet)
 router.register(r"equipment-models", views.EquipmentModelViewSet)
@@ -31,9 +31,15 @@ router.register(r"credentials", views.CredentialViewSet)
 router.register(r"credential-models", views.CredentialModelViewSet)
 router.register(r"credential-model-prereqs", views.CredentialModelPrerequisiteViewSet)
 router.register(r"makerspace-credential-models", views.MakerspaceCredentialModelViewSet)
-router.register(r"posts", views.PostViewSet)
+router.register(r"makerspace-staff", views.MakerspaceStaffViewSet)
+router.register(r"capabilities", views.CapabilityViewSet)
+router.register(r"materials", views.MaterialViewSet)
+router.register(r"equipment-model-capabilities", views.EquipmentModelCapabilityViewSet)
+router.register(r"equipment-accepted-materials", views.EquipmentAcceptedMaterialViewSet)
+router.register(r"equipment-restricted-materials", views.EquipmentRestrictedMaterialViewSet)
 router.register(r"issue-reports", views.IssueReportViewSet)
-router.register(r"operational-data", views.OperationalDataViewSet)
+router.register(r"pinned-equipment", views.PinnedEquipmentViewSet)
+router.register(r"wishlisted-credential-models", views.WishlistedCredentialModelViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),

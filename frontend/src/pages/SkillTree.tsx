@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import DashboardNavBar from '../components/DashboardNavBar'
 import Sidebar from '../components/SkillTreeSidebar'
 import { useAppContext } from '../context/AppContext'
-import type { MakerspaceCardData, MakerspaceCreds, TrainingPrerequisites, CredentialModelLink } from '../types/types'
+import type { CertificateData, MakerspaceCardData, MakerspaceCreds, TrainingPrerequisites, CredentialModelLink } from '../types/types'
+import { apiGetList } from '../lib/api'
 import { Outlet } from 'react-router-dom'
-
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 /**
  * Fetch makerspace_credential_models rows for a makerspace.
@@ -14,12 +13,8 @@ export async function fetchMakerspaceCredRows(
   makerspaceId: string
 ): Promise<{ data: MakerspaceCreds[] | null; error: any }> {
   try {
-    const response = await fetch(`${VITE_API_BASE_URL}/makerspace-credential-models/?makerspace_id=${makerspaceId}`)
-    if (!response.ok) {
-      return { data: null, error: new Error(`Failed to fetch makerspace credentials: ${response.status}`) }
-    }
-    const data = await response.json()
-    return { data: (data as MakerspaceCreds[]) ?? null, error: null }
+    const data = await apiGetList<MakerspaceCreds>('/makerspace-credential-models/', { makerspace_id: makerspaceId })
+    return { data, error: null }
   } catch (error) {
     return { data: null, error }
   }
@@ -33,12 +28,8 @@ export async function fetchCredentialModelsByIds(
 ): Promise<{ data: CredentialModelLink[] | null; error: any }> {
   if (!ids || ids.length === 0) return { data: [], error: null }
   try {
-    const response = await fetch(`${VITE_API_BASE_URL}/credential-models/?credential_model_id__in=${ids.join(',')}`)
-    if (!response.ok) {
-      return { data: null, error: new Error(`Failed to fetch credential models: ${response.status}`) }
-    }
-    const data = await response.json()
-    return { data: (data as CredentialModelLink[]) ?? null, error: null }
+    const data = await apiGetList<CredentialModelLink>('/credential-models/', { credential_model_id__in: ids.join(',') })
+    return { data, error: null }
   } catch (error) {
     return { data: null, error }
   }
@@ -59,11 +50,7 @@ export async function fetchPrereqsForDependentModels(dependentIds: string[]): Pr
 
   let rows: TrainingPrerequisites[]
   try {
-    const response = await fetch(`${VITE_API_BASE_URL}/credential-model-prereqs/?dependent_credential_model_id__in=${dependentIds.join(',')}`)
-    if (!response.ok) {
-      return { prereqMap: {}, error: new Error(`Failed to fetch prerequisites: ${response.status}`) }
-    }
-    rows = await response.json()
+    rows = await apiGetList<TrainingPrerequisites>('/credential-model-prereqs/', { dependent_credential_model_id__in: dependentIds.join(',') })
   } catch (error) {
     return { prereqMap: {}, error }
   }
@@ -121,16 +108,10 @@ export default function SkillTree() {
 
     const loadCompleted = async () => {
       try {
-        const response = await fetch(`${VITE_API_BASE_URL}/credential-summary/?recipient_user_id=${profile!['user_id']}`)
+        const rows = await apiGetList<CertificateData>('/credential-summary/', { recipient_user_id: profile!['user_id'] })
         if (!mounted) return
-        if (response.ok) {
-          const json = await response.json()
-          const rows = json.results ?? json
-          const ids = new Set((rows as any[]).map((r) => String(r.credential_model_id)))
-          setCompletedModelIds(ids)
-        } else {
-          setCompletedModelIds(new Set())
-        }
+        const ids = new Set(rows.map((r) => r.credential_model_id))
+        setCompletedModelIds(ids)
       } catch {
         if (mounted) setCompletedModelIds(new Set())
       }
