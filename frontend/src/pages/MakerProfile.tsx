@@ -9,11 +9,12 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { apiGetList } from '@/lib/api';
-import type { AdminCredential, PinnedEquipment, WishlistedCredentialModel } from '@/types/types';
+import type { AdminCredential, PinnedEquipment, WishlistedCredentialModel, IssueReport } from '@/types/types';
 import Loading from './Loading';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Link } from 'react-router-dom';
 import supabase from '@/lib/supabase';
+import { toTitleCase } from '@/constants/helpers';
 
 // const context = useContext(AppContext);
 // // console.log('App context in Dashboard:', context);
@@ -45,6 +46,7 @@ const useMakerProfileData = () => {
     const { profile } = useAppContext();
     const [userCredentials, setUserCredentials] = useState<AdminCredential[]>([]);
     const [pinnedEquipment, setPinnedEquipment] = useState<PinnedEquipment[]>([]);
+    const [issueReports, setIssueReports] = useState<IssueReport[]>([]);
     const [wishlistedCredentialModels, setWishlistedCredentialModels] = useState<WishlistedCredentialModel[]>([]);
     const [equipmentImages, setEquipmentImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
@@ -53,9 +55,7 @@ const useMakerProfileData = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
-
-                const [userCreds, pinnedEq, wishlistedCredModels] = await Promise.all([
+                const [userCreds, pinnedEq, wishlistedCredModels, issues] = await Promise.all([
                     apiGetList<AdminCredential>('/view-credentials-admin/', {
                         recipient_user_id: profile!.user_id
                     }),
@@ -64,6 +64,9 @@ const useMakerProfileData = () => {
                     }),
                     apiGetList<WishlistedCredentialModel>('/view-wishlisted-credential-models/', {
                         user_id: profile!.user_id
+                    }),
+                    apiGetList<IssueReport>('/issue-reports/', {
+                        reporter_user: profile!.user_id
                     })
                 ]);
 
@@ -83,6 +86,7 @@ const useMakerProfileData = () => {
                 setUserCredentials(userCreds);
                 setPinnedEquipment(pinnedEq);
                 setEquipmentImages(eqImages);
+                setIssueReports(issues);
                 setWishlistedCredentialModels(wishlistedCredModels);
                 console.log(profile!.user_id);
                 console.log(userCreds);
@@ -99,11 +103,11 @@ const useMakerProfileData = () => {
         fetchData();
     }, []);
     
-    return { profile, userCredentials, pinnedEquipment, equipmentImages, wishlistedCredentialModels, loading, errorMessage};
+    return { profile, userCredentials, pinnedEquipment, equipmentImages, issueReports, wishlistedCredentialModels, loading, errorMessage};
 };
 
 function MakerProfile() {
-    const { profile, userCredentials, pinnedEquipment, equipmentImages, wishlistedCredentialModels, loading, errorMessage } = useMakerProfileData();
+    const { profile, userCredentials, pinnedEquipment, equipmentImages, issueReports, wishlistedCredentialModels, loading, errorMessage } = useMakerProfileData();
     
     return (
         <>
@@ -120,7 +124,7 @@ function MakerProfile() {
                             </CardHeader>
                         </Card>
                         <section className="flex flex-row justify-center items-center gap-4">
-                            <Card className="w-full min-h-60 pt-0">
+                            <Card className="w-full min-h-80 pt-0">
                                 <CardHeader className="flex flex-row justify-between px-12 py-3 bg-navy-blue">
                                     <CardTitle className="text-2xl font-bold text-white">Recent Certifications</CardTitle>
                                     <Button className="bg-maize text-black">
@@ -151,7 +155,7 @@ function MakerProfile() {
                                 </CardContent>
                                 
                             </Card>
-                            <Card className="w-full min-h-60 pt-0">
+                            <Card className="w-full min-h-80 pt-0">
                                 <CardHeader className="flex flex-row justify-between px-12 py-3 bg-navy-blue">
                                     <CardTitle className="text-2xl font-bold text-white">Pinned Equipment</CardTitle>
                                     <Button className="bg-maize text-black">
@@ -218,12 +222,39 @@ function MakerProfile() {
                             </CardContent>
                             
                         </Card>
-                        <Card className="min-h-60 pt-0">
+                        <Card className="min-h-80 pt-0">
                             <CardHeader className="px-12 py-3 bg-navy-blue">
                                 <CardTitle className="text-2xl font-bold text-white">Issue Reports</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                
+                                {
+                                    issueReports.map(
+                                        (ir) =>
+                                        <Card key={ir.issue_report_id}>
+                                            <CardHeader>
+                                                <CardTitle>
+                                                    {ir.title}
+                                                </CardTitle>
+                                                <p>{ir.is_resolved ? "Resolved" : "Unresolved"}</p>
+                                                <p>{toTitleCase(ir.issue_type)}</p>
+                                                <p>Reported On: {ir.created_at}</p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                {/* issue_report_id: string;
+                                                created_at: string;
+                                                last_updated: string;
+                                                reporter_user_id: string | null;
+                                                issue_type: string;
+                                                description: string;
+                                                is_resolved: boolean;
+                                                equipment_id: string;
+                                                overseer_user_id: string | null;
+                                                title: string; */}
+                                                <p>{ir.description}</p>
+                                            </CardContent>
+                                        </Card>
+                                    )
+                                }
                                 
                             </CardContent>
                             

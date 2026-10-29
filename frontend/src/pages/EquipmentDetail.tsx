@@ -1,18 +1,22 @@
 import { Link, useParams } from "react-router-dom";
 import type { EquipmentDetailData } from "../types/types";
 import { useState, useEffect } from "react";
-import { apiGet } from "../lib/api";
+import { apiGet, apiPost, apiDelete } from "../lib/api";
 import supabase from "../lib/supabase";
 import Loading from "./Loading";
 // import styles from '../styles/equipmentDetail.module.css';
 import labels from "../constants/labels";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import { useAppContext } from "@/context/AppContext";
 
 const useEquipmentDetailData = () => {
     const { id } = useParams();
     const [equipment, setEquipment] = useState<EquipmentDetailData | null>(null);
     const [coverImage, setCoverImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const { profile } = useAppContext();
 
     useEffect(() => {
         const fetchEquipment = async () => {
@@ -41,20 +45,46 @@ const useEquipmentDetailData = () => {
         fetchEquipment();
     }, []);
 
-    return { equipment, coverImage, loading };
+    return { equipment, coverImage, profile, loading };
 };
 
 function EquipmentDetail() {
-    const { equipment, coverImage, loading } = useEquipmentDetailData();
-    
+    const [isPinned, setIsPinned] = useState(false);
+    const { equipment, coverImage, profile, loading } = useEquipmentDetailData();
+    const pinEquipment = async () => {
+        try {
+            if (!isPinned) {
+                const response = await apiPost('/pinned-equipment/', {
+                    user: profile!.user_id,
+                    equipment: equipment!.equipment_id
+                });
+
+                console.log(response);
+            }
+            else {
+                const response = await apiDelete(`/profiles/${profile!.user_id}/pinned-equipment/${equipment!.equipment_id}/`);
+                console.log(response);
+            }
+            
+            setIsPinned((p) => !p);
+        }
+        catch (e) {
+            console.error((e as Error).message);
+        }
+    };
+
     return (
         <>
             {
                 loading ? <div className="h-[80vh]"><Loading /></div> :
                 equipment ?
                 <>
-                    <div className="py-12 px-80 bg-arb-blue text-[#fff] flex justify-between font-light">
+                    <div className="relative py-12 px-80 bg-arb-blue text-[#fff] flex justify-between font-light">
                         <div>
+                            <button className="absolute top-6 right-100 text-white" onClick={() => pinEquipment()}>
+                                {isPinned ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                                <p>{isPinned ? "Unpin" : "Pin"}</p>
+                            </button>
                             <h1 className="text-4xl font-semibold">{equipment["equipment_type"]}<span className="ml-6 italic font-light text-2xl">{equipment["equipment_model_name"]}</span></h1>
                             <section className="mt-4">
                                 <Link to={`/makerspace-detail/${equipment["makerspace_id"]}`} className="flex justify-center items-center gap-1 font-medium text-xl w-fit">
@@ -86,7 +116,7 @@ function EquipmentDetail() {
                                 <p><span className="font-medium">Current Status:</span> {equipment["equipment_status"] || "N/A"}</p>
                                 {
                                     equipment.materials && equipment.materials.length > 0 &&
-                                    <p className="mt-4"><span className="font-medium">Materials:</span> {equipment.materials.join(', ')}</p>
+                                    <p className="mt-4"><span className="font-medium">Accepted Materials:</span> {equipment.materials.join(', ')}</p>
                                 }
                                 {
                                     typeof equipment["equipment_specific_specs"] === "object" && equipment["equipment_specific_specs"] && Object.entries(equipment["equipment_specific_specs"]).map(([key, value]) => <p key={key} className="mt-4"><span className="font-medium">{labels[key as keyof typeof labels] || key}:</span> {value as string}</p>)

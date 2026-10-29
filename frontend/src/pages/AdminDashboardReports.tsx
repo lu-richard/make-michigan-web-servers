@@ -64,7 +64,7 @@ function AdminDashboardReports() {
                         <p>No issue reports found.</p> :
                         <ul>
                             {
-                                issueReports.filter((issueReport) => isActive == !issueReport.is_resolved).map((issueReport) => <li className=" border-t last:border-b"><IssueReportCard key={issueReport["issue_report_id"]} issueReportCard={issueReport} /></li>)
+                                issueReports.filter((issueReport) => isActive == !issueReport.is_resolved).map((issueReport) => <li key={issueReport["issue_report_id"]} className="border-t last:border-b"><IssueReportCard issueReportCard={issueReport} /></li>)
                             }
                         </ul>
                     }

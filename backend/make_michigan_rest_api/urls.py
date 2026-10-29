@@ -41,7 +41,24 @@ router.register(r"issue-reports", views.IssueReportViewSet)
 router.register(r"pinned-equipment", views.PinnedEquipmentViewSet)
 router.register(r"wishlisted-credential-models", views.WishlistedCredentialModelViewSet)
 
+# Detail routes for composite-key tables, nested under the parent that owns the relationship.
+# URL kwarg names must match each viewset's composite_key_fields.
+
+composite_detail = {"get": "retrieve", "delete": "destroy"}
+
+nested_urlpatterns = [
+    path("profiles/<uuid:user_id>/pinned-equipment/<uuid:equipment_id>/", views.PinnedEquipmentViewSet.as_view(composite_detail)),
+    path("profiles/<uuid:user_id>/wishlisted-credential-models/<uuid:credential_model_id>/", views.WishlistedCredentialModelViewSet.as_view(composite_detail)),
+    path("makerspaces/<uuid:makerspace_id>/staff/<uuid:user_id>/", views.MakerspaceStaffViewSet.as_view(composite_detail)),
+    path("makerspaces/<uuid:makerspace_id>/credential-models/<uuid:credential_model_id>/", views.MakerspaceCredentialModelViewSet.as_view(composite_detail)),
+    path("credential-models/<uuid:dependent_credential_model_id>/prerequisites/<uuid:prerequisite_credential_model_id>/", views.CredentialModelPrerequisiteViewSet.as_view(composite_detail)),
+    path("equipment-models/<uuid:equipment_model_id>/capabilities/<uuid:capability_id>/", views.EquipmentModelCapabilityViewSet.as_view(composite_detail)),
+    path("equipment/<uuid:equipment_id>/accepted-materials/<uuid:material_id>/", views.EquipmentAcceptedMaterialViewSet.as_view(composite_detail)),
+    path("equipment/<uuid:equipment_id>/restricted-materials/<uuid:material_id>/", views.EquipmentRestrictedMaterialViewSet.as_view(composite_detail)),
+]
+
 urlpatterns = [
+    path("api/", include(nested_urlpatterns)),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

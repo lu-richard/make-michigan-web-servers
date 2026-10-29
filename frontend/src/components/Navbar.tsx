@@ -111,7 +111,7 @@ function Navbar() {
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 4 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
                 <div className="relative group mx-8" onClick={() => setTabOpen(5)}>
-                    <a href="https://docs.google.com/forms/d/e/1FAIpQLScFpee0rI46Xj1YNfye96hyqpbYxS8xYetnc2skQxjjheX99g/viewform" target="_blank" className="text-[#fff]">Report an Issue</a>
+                    <Link to='report-issue' className="text-[#fff]">Report an Issue</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 5 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
             </div>

@@ -35,8 +35,6 @@ const useAddEquipmentModelData = () => {
     useEffect(() => {
         const fetchCapabilities = async () => {
             try {
-                setLoading(true);
-
                 const capabilities = await apiGetList<Capability>('/capabilities/', { ordering: 'name' });
 
                 setCapabilities(capabilities);
@@ -259,7 +257,6 @@ function AdminAddEquipmentModel() {
                 </Card>
             }
         </>
-        
     );
 }
 

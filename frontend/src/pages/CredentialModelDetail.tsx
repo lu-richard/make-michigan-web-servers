@@ -2,9 +2,12 @@ import { Link, useParams, useOutletContext } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Loading from "./Loading";
 import type { CredentialModel, EquipmentLink, MakerspaceCardData, SkillTreeContext } from "../types/types";
-import { apiGet, apiGetList } from "../lib/api";
+import { apiGet, apiGetList, apiPost, apiDelete } from "../lib/api";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import { useAppContext } from "@/context/AppContext";
 
 const useCredentialModelDetailData = () => {
     const { makerspaceId, credModelId } = useParams();
@@ -12,6 +15,7 @@ const useCredentialModelDetailData = () => {
     const [credentialModel, setCredentialModel] = useState<CredentialModel | null>(null);
     const [loading, setLoading] = useState(true);
     const { selectedMakerspace, setSelectedMakerspace, prereqMap } = useOutletContext<SkillTreeContext>();
+    const { profile } = useAppContext();
 
     useEffect(() => {
         if (!selectedMakerspace) {
@@ -51,11 +55,34 @@ const useCredentialModelDetailData = () => {
         fetchCredentialModelDetailData();
     }, []);
 
-    return { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, loading };
+    return { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, profile, loading };
 };
 
 function CredentialModelDetail() {
-    const { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, loading } = useCredentialModelDetailData();
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, profile, loading } = useCredentialModelDetailData();
+    const wishlistCredentialModel = async () => {
+        try {
+            if (!isWishlisted) {
+                const response = await apiPost('/wishlisted-credential-models/', {
+                    user: profile!.user_id,
+                    credential_model: credentialModel!.credential_model_id,
+                    makerspace: selectedMakerspace!.makerspace_id
+                });
+
+                console.log(response);
+            }
+            else {
+                const response = await apiDelete(`/profiles/${profile!.user_id}/wishlisted-credential-models/${credentialModel!.credential_model_id}/`);
+                console.log(response);
+            }
+            
+            setIsWishlisted((p) => !p);
+        }
+        catch (e) {
+            console.error((e as Error).message);
+        }
+    };
 
     return (
         <>
@@ -63,6 +90,10 @@ function CredentialModelDetail() {
                 loading || !selectedMakerspace ? <div className="h-[80vh]"><Loading /></div> :
                 credentialModel ?
                 <div className="relative w-full h-full">
+                    <button className="absolute right-12 top-6 text-white" onClick={() => wishlistCredentialModel()}>
+                        {isWishlisted ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                        <p className="text-sm">{isWishlisted ? "Un-Wishlist" : "Wishlist"}</p>
+                    </button>
                     <Link to="/dashboard/trainings" className="absolute top-5 left-5 text-[#fff]">
                         <ArrowBackIosIcon />
                     </Link>

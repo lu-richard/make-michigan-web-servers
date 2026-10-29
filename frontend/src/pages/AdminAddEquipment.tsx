@@ -40,8 +40,6 @@ const useAddEquipmentData = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
-
                 const [mats, spaces, eqModels] = await Promise.all([
                     apiGetList<Material>('/materials/', { ordering: 'name' }),
                     apiGetList<Makerspace>('/makerspaces/', { ordering: 'makerspace_name' }),
@@ -309,7 +307,7 @@ function AdminAddEquipmentModel() {
                             <FieldLabel>What Model Is This?</FieldLabel>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">{selectedEqModel === null ? "Please select an equipment model." : selectedEqModel?.equipment_model_name}</Button>
+                                    <Button variant="outline">{selectedEqModel === null ? "Please select an equipment model." : selectedEqModel.equipment_model_name}</Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
                                     {
@@ -362,7 +360,6 @@ function AdminAddEquipmentModel() {
                                 </DropdownMenu>
                             </Field>
                         }
-                        
                         <Button className="w-full mt-16"
                             onClick={
                                 async () => {

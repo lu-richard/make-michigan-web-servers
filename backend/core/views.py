@@ -1,4 +1,6 @@
+from django.http import Http404
 from rest_framework import viewsets
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from django_filters import rest_framework as django_filters
 
@@ -29,6 +31,23 @@ class CredentialModelPrerequisiteFilter(django_filters.FilterSet):
     class Meta:
         model = CredentialModelPrerequisite
         fields = ['dependent_credential_model_id']
+
+# Custom Mixins
+
+class CompositeKeyLookupMixin:
+    """Looks up a single row of a CompositePrimaryKey table from URL kwargs named after its key columns,
+    e.g. profiles/<user_id>/pinned-equipment/<equipment_id>/ (see urls.py)."""
+    composite_key_fields = []
+
+    def get_object(self):
+        # The router's flat /<prefix>/<pk>/ route can't address a multi-column key.
+        if not all(field in self.kwargs for field in self.composite_key_fields):
+            raise Http404
+
+        lookup = {field: self.kwargs[field] for field in self.composite_key_fields}
+        obj = get_object_or_404(self.filter_queryset(self.get_queryset()), **lookup)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 # SQL View ViewSets
 
@@ -110,7 +129,7 @@ class MakerspaceViewSet(viewsets.ModelViewSet):
 class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentSerializer
-    filterset_fields = ['credential_model_id']
+    filterset_fields = ['makerspace', 'equipment_model', 'credential_model']
 
 class EquipmentModelViewSet(viewsets.ModelViewSet):
     queryset = EquipmentModel.objects.all()
@@ -128,21 +147,24 @@ class CredentialModelViewSet(viewsets.ModelViewSet):
     filterset_class = CredentialModelFilter
     ordering_fields = ['credential_model_name']
 
-class MakerspaceCredentialModelViewSet(viewsets.ModelViewSet):
+class MakerspaceCredentialModelViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = MakerspaceCredentialModel.objects.all()
     serializer_class = MakerspaceCredentialModelSerializer
+    composite_key_fields = ['makerspace_id', 'credential_model_id']
     filterset_fields = ['makerspace_id', 'credential_model_id']
     ordering_fields = ['created_at', 'last_updated']
 
-class CredentialModelPrerequisiteViewSet(viewsets.ModelViewSet):
+class CredentialModelPrerequisiteViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = CredentialModelPrerequisite.objects.all()
     serializer_class = CredentialModelPrerequisiteSerializer
+    composite_key_fields = ['prerequisite_credential_model_id', 'dependent_credential_model_id']
     filterset_class = CredentialModelPrerequisiteFilter
     ordering_fields = ['created_at', 'last_updated']
 
-class MakerspaceStaffViewSet(viewsets.ModelViewSet):
+class MakerspaceStaffViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = MakerspaceStaff.objects.all()
     serializer_class = MakerspaceStaffSerializer
+    composite_key_fields = ['makerspace_id', 'user_id']
     filterset_fields = ['makerspace_id', 'user_id']
 
 class CapabilityViewSet(viewsets.ModelViewSet):
@@ -155,21 +177,24 @@ class MaterialViewSet(viewsets.ModelViewSet):
     serializer_class = MaterialSerializer
     ordering_fields = ['name']
 
-class EquipmentModelCapabilityViewSet(viewsets.ModelViewSet):
+class EquipmentModelCapabilityViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = EquipmentModelCapability.objects.all()
     serializer_class = EquipmentModelCapabilitySerializer
+    composite_key_fields = ['equipment_model_id', 'capability_id']
     filterset_fields = ['equipment_model_id', 'capability_id']
     ordering_fields = ['equipment_model_id', 'capability_id']
 
-class EquipmentAcceptedMaterialViewSet(viewsets.ModelViewSet):
+class EquipmentAcceptedMaterialViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = EquipmentAcceptedMaterial.objects.all()
     serializer_class = EquipmentAcceptedMaterialSerializer
+    composite_key_fields = ['equipment_id', 'material_id']
     filterset_fields = ['equipment_id', 'material_id']
     ordering_fields = ['equipment_id', 'material_id']
 
-class EquipmentRestrictedMaterialViewSet(viewsets.ModelViewSet):
+class EquipmentRestrictedMaterialViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = EquipmentRestrictedMaterial.objects.all()
     serializer_class = EquipmentRestrictedMaterialSerializer
+    composite_key_fields = ['equipment_id', 'material_id']
     filterset_fields = ['equipment_id', 'material_id']
     ordering_fields = ['equipment_id', 'material_id']
 
@@ -177,12 +202,14 @@ class IssueReportViewSet(viewsets.ModelViewSet):
     queryset = IssueReport.objects.all().order_by('issue_report_id')
     serializer_class = IssueReportSerializer
     pagination_class = StandardResultsSetPagination
-    filterset_fields = ['reporter_id']
+    filterset_fields = ['reporter_user']
 
-class PinnedEquipmentViewSet(viewsets.ModelViewSet):
+class PinnedEquipmentViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = PinnedEquipment.objects.all()
     serializer_class = PinnedEquipmentSerializer
+    composite_key_fields = ['user_id', 'equipment_id']
 
-class WishlistedCredentialModelViewSet(viewsets.ModelViewSet):
+class WishlistedCredentialModelViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = WishlistedCredentialModels.objects.all()
     serializer_class = WishlistedCredentialModelSerializer
+    composite_key_fields = ['user_id', 'credential_model_id']
