@@ -30,6 +30,7 @@ import AdminDashboardUsageStatsUser from "../pages/AdminDashboardUsageStatsUser"
 import ReportDetail from "../pages/ReportDetail";
 import SkillTreeVisual from "../pages/SkillTreeVisual";
 import CredentialModelDetail from "../pages/CredentialModelDetail";
+import ReportIssue from "@/pages/ReportIssue";
 import React from "react";
 
 void React
@@ -56,6 +57,7 @@ const routes = [
                     { path: 'makerspace-detail/:id', element: <MakerspaceDetail /> },
                     { path: 'equipment', element: <EquipmentCatalog /> },
                     { path: 'equipment-detail/:id', element: <EquipmentDetail /> },
+                    { path: 'report-issue', element: <ReportIssue /> },
                     { path: 'dashboard', element: <MakerProfile /> },
                     { path: 'dashboard/my-trainings', element: <MyTrainings /> },
                     { path: 'dashboard/wishlist', element: <MakerProfile /> },

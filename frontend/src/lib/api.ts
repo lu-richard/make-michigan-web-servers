@@ -78,3 +78,13 @@ export async function apiPost<T>(path: string, payload: Object): Promise<T> {
 
     return response.json() as Promise<T>;
 }
+
+export async function apiDelete(path: string, params?: Params): Promise<void> {
+    const response = await fetch(buildUrl(path, params), {
+        method: "DELETE",
+    });
+
+    if (!response.ok) {
+        throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    }
+}

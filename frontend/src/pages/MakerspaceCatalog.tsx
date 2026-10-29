@@ -13,7 +13,7 @@ const useMakerspaceCatalogData = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [searchValue, setSearchValue] = useState("");
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState(searchValue);
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
   const [searchLimit, setSearchLimit] = useState(9);
   const [isDescending, setIsDescending] = useState(false);
   const [isOrderedByBuilding, setIsOrderedByBuilding] = useState(false);

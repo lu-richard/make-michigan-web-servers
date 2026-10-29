@@ -2,15 +2,10 @@
     display: flex;
     align-items: center;
     padding: 1.5rem 0;
-    border-top: 0.1rem solid var(--neutral-200);
     position: relative;
     text-decoration: none;
     color: var(--text-color);
     font-size: 1rem;
-}
-
-.container:last-child {
-    border-bottom: 0.1rem solid var(--neutral-200);
 }
 
 .name {

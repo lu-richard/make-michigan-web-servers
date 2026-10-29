@@ -70,9 +70,9 @@ function AdminDashboardTraining() {
                     {
                         profiles.length > 0 ?
                         <>
-                            <div>
-                                {profiles.map((profileListItem) => <AdminProfileListItem key={profileListItem["user_id"]} profileListItem={profileListItem} />)}
-                            </div>
+                            <ul>
+                                {profiles.map((profileListItem) => <li key={profileListItem["user_id"]} className="border-t last:border-b"><AdminProfileListItem profileListItem={profileListItem} /></li>)}
+                            </ul>
                             <p className={styles["num-results"]}>Results 1 - {profiles.length}</p>
                             {
                                 profiles.length === searchLimit &&

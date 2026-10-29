@@ -12,6 +12,7 @@ import type {
     ViewEquipmentDetailPages,
     ViewPinnedEquipment,
     ViewWishlistedCredentialModel,
+    IssueReport as ApiIssueReport,
 } from "./api";
 
 // Card Data Types
@@ -24,6 +25,7 @@ export type IssueReportCardData = ViewIssueReportCards;
 // Student Dashboard Data Types
 export type AdminCredential = ViewCredentialsAdmin;
 export type CredentialModel = ApiCredentialModel;
+export type IssueReport = ApiIssueReport;
 export interface EquipmentLink {
     equipment_id: string;
     equipment_name: string;
