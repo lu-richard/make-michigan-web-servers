@@ -8,10 +8,10 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { apiPost, apiDelete } from "@/lib/api";
 import { useAppContext } from "@/context/AppContext";
 
-function EquipmentCard({ equipmentCard }: { equipmentCard: EquipmentCardData }) {
+function EquipmentCard({ equipmentCard, initIsPinned }: { equipmentCard: EquipmentCardData, initIsPinned: boolean }) {
     const equipmentDetailPath = `/equipment-detail/${equipmentCard["equipment_id"]}`;
     const [coverImage, setCoverImage] = useState<string | null>(null);
-    const [isPinned, setIsPinned] = useState(false);
+    const [isPinned, setIsPinned] = useState(initIsPinned);
     const { profile } = useAppContext();
     const pinEquipment = async () => {
         try {

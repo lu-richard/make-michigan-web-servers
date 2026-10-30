@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
-import type { EquipmentDetailData } from "../types/types";
+import type { EquipmentDetailData, PinnedEquipment } from "../types/types";
 import { useState, useEffect } from "react";
-import { apiGet, apiPost, apiDelete } from "../lib/api";
+import { apiGet, apiGetOrNull, apiPost, apiDelete } from "../lib/api";
 import supabase from "../lib/supabase";
 import Loading from "./Loading";
 // import styles from '../styles/equipmentDetail.module.css';
@@ -15,21 +15,26 @@ const useEquipmentDetailData = () => {
     const { id } = useParams();
     const [equipment, setEquipment] = useState<EquipmentDetailData | null>(null);
     const [coverImage, setCoverImage] = useState<string | null>(null);
+    const [isPinned, setIsPinned] = useState(false);
     const [loading, setLoading] = useState(true);
     const { profile } = useAppContext();
 
     useEffect(() => {
-        const fetchEquipment = async () => {
+        const fetchData = async () => {
             try {
-                const data = await apiGet<EquipmentDetailData>(`/view-equipment-detail-pages/${id}`);
+                const [eq, initIsPinned] = await Promise.all([
+                    apiGet<EquipmentDetailData>(`/view-equipment-detail-pages/${id}`),
+                    apiGetOrNull<PinnedEquipment>(`/profiles/${profile!.user_id}/pinned-equipment/${id}/`)
+                ]);
 
-                setEquipment(data);
+                setEquipment(eq);
+                setIsPinned(initIsPinned === null ? false : true);
 
-                if (data?.manufacturer_image_urls?.length) {
+                if (eq?.manufacturer_image_urls?.length) {
                     const { data: image } = supabase
                         .storage
                         .from('equipment-model-photos')
-                        .getPublicUrl(data["manufacturer_image_urls"][0]);
+                        .getPublicUrl(eq["manufacturer_image_urls"][0]);
                     
                     setCoverImage(image.publicUrl);
                 }
@@ -42,15 +47,14 @@ const useEquipmentDetailData = () => {
             }
         };
 
-        fetchEquipment();
+        fetchData();
     }, []);
 
-    return { equipment, coverImage, profile, loading };
+    return { equipment, coverImage, isPinned, setIsPinned, profile, loading };
 };
 
 function EquipmentDetail() {
-    const [isPinned, setIsPinned] = useState(false);
-    const { equipment, coverImage, profile, loading } = useEquipmentDetailData();
+    const { equipment, coverImage, isPinned, setIsPinned, profile, loading } = useEquipmentDetailData();
     const pinEquipment = async () => {
         try {
             if (!isPinned) {
