@@ -120,7 +120,6 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     pagination_class = StandardResultsSetPagination
     filterset_fields = ['uniqname']
-    # permission_classes = [permissions.isAuthenticated]
 
 class MakerspaceViewSet(viewsets.ModelViewSet):
     queryset = Makerspace.objects.all()
@@ -167,6 +166,7 @@ class MakerspaceStaffViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     serializer_class = MakerspaceStaffSerializer
     composite_key_fields = ['makerspace_id', 'user_id']
     filterset_fields = ['makerspace_id', 'user_id']
+    ordering_fields = ['makerspace_id', 'user_id']
 
 class CapabilityViewSet(viewsets.ModelViewSet):
     queryset = Capability.objects.all()
@@ -209,8 +209,12 @@ class PinnedEquipmentViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = PinnedEquipment.objects.all()
     serializer_class = PinnedEquipmentSerializer
     composite_key_fields = ['user_id', 'equipment_id']
+    filterset_fields = ['user_id', 'equipment_id']
+    ordering_fields = ['created_at', 'last_updated']
 
 class WishlistedCredentialModelViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = WishlistedCredentialModels.objects.all()
     serializer_class = WishlistedCredentialModelSerializer
     composite_key_fields = ['user_id', 'credential_model_id']
+    filterset_fields = ['user_id', 'credential_model_id']
+    ordering_fields = ['created_at', 'last_updated']
