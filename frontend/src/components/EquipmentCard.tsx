@@ -1,4 +1,5 @@
 import type { EquipmentCardData } from "../types/types";
+import type { PinnedEquipment } from "../types/api";
 // import styles from '../styles/equipmentCard.module.css';
 import supabase from "../lib/supabase";
 import { Link } from "react-router-dom";
@@ -16,9 +17,9 @@ function EquipmentCard({ equipmentCard }: { equipmentCard: EquipmentCardData }) 
     const pinEquipment = async () => {
         try {
             if (!isPinned) {
-                const response = await apiPost('/pinned-equipment/', {
-                    user: profile!.user_id,
-                    equipment: equipmentCard.equipment_id
+                const response = await apiPost<PinnedEquipment>('/pinned-equipment/', {
+                    user_id: profile!.user_id,
+                    equipment_id: equipmentCard.equipment_id
                 });
 
                 console.log(response);
