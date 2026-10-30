@@ -65,9 +65,9 @@ function CredentialModelDetail() {
         try {
             if (!isWishlisted) {
                 const response = await apiPost('/wishlisted-credential-models/', {
-                    user: profile!.user_id,
-                    credential_model: credentialModel!.credential_model_id,
-                    makerspace: selectedMakerspace!.makerspace_id
+                    user_id: profile!.user_id,
+                    credential_model_id: credentialModel!.credential_model_id,
+                    makerspace_id: selectedMakerspace!.makerspace_id
                 });
 
                 console.log(response);
