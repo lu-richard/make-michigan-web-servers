@@ -69,24 +69,14 @@ const ProfileInfo = ({ profilePhoto, profile }: ProfileInfoProps) => {
                 </CardContent>
             </div>
         </Card>
-        <div className='mt-12 relative'>
-            <button
-                type="button"
-                className="absolute top-0 right-6 text-sm font-medium text-arb-blue"
-            >
-                Edit
-            </button>
+        <div className='mt-12'>
             <h2 className="H1 scroll-m-20 text-xl font-bold tracking-tight md:text-2xl mb-6">
                 Personal Info
             </h2>
             <span className='flex items-center gap-16'>
                 <div>
                     <h3 className='text-angell-ash'>Email:</h3>
-                    <p>{profile.uniqname}.umich.edu</p>
-                </div>
-                <div>
-                    <h3 className='text-angell-ash'>Phone:</h3>
-                    <p>+1 734 567 9458</p>
+                    <p>{profile.uniqname}@umich.edu</p>
                 </div>
             </span>
         </div>

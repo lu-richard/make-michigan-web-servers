@@ -130,7 +130,7 @@ class MakerspaceViewSet(viewsets.ModelViewSet):
 class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentSerializer
-    filterset_fields = ['makerspace', 'equipment_model', 'credential_model']
+    filterset_fields = ['makerspace_id', 'equipment_model_id', 'credential_model_id']
 
 class EquipmentModelViewSet(viewsets.ModelViewSet):
     queryset = EquipmentModel.objects.all()

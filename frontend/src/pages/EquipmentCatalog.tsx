@@ -42,7 +42,7 @@ const useEquipmentCatalogData = () => {
 
           setEquipmentCards(cards);
           
-          pinnedEq.forEach((pe) => setEqPinIds(new Set(eqPinIds).add(pe.equipment_id)));
+          setEqPinIds(new Set(pinnedEq.map((pe) => pe.equipment_id)));
         }
         catch (e) {
           console.error((e as Error).message);

@@ -4,7 +4,7 @@ import labels from "../constants/labels";
 import { Link } from "react-router-dom";
 
 function AdminProfileListItem({ profileListItem }: { profileListItem: ProfileData }) {
-    const adminProfileHomePath = `/admin-profile-detail/${profileListItem["user_id"]}`;
+    const adminProfileHomePath = `/profile-creds-detail/${profileListItem["user_id"]}`;
 
     return (
         <Link to={adminProfileHomePath} className={styles.container}>

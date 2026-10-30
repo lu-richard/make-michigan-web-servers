@@ -42,7 +42,7 @@ function ReportDetail() {
                 loading ?
                 <div className="h-[80vh]"><Loading /></div> :
                 report ?
-                <div className="py-4 px-40 min-h-[70vh]">
+                <div className="px-40 py-16 min-h-[70vh]">
                     <div className="flex items-center">
                         <h1 className="text-3xl font-medium mr-16">&#34;{report.title}&#34;</h1>
                         <div className={`flex items-center ${report["is_resolved"] ? "text-checkmark-green" : "text-red"}`}>
