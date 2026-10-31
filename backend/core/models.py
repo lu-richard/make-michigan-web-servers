@@ -253,6 +253,21 @@ class IssueReport(models.Model):
     class Meta:
         db_table = "issue_reports"
 
+class CanvasCourse(models.Model):
+    """A Canvas course whose completions earn a credential; read by the sync_canvas_credentials command."""
+    canvas_course_id = models.CharField(max_length=32, primary_key=True)
+    credential_model = models.ForeignKey(CredentialModel, on_delete=models.CASCADE)
+    issuing_makerspace = models.ForeignKey(Makerspace, on_delete=models.CASCADE)
+    # PROTECT: a staff member can't be deleted while courses still name them as the credentials' author.
+    author_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="authored_canvas_courses")
+    is_active = models.BooleanField(default=True)
+    last_synced_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "canvas_courses"
+
 # Junction tables (composite primary keys)
 
 class CredentialModelPrerequisite(models.Model):
