@@ -36,24 +36,12 @@ import { Button } from './ui/button';
 function Navbar() {
     const { profile } = useAppContext();
     const [profilePhoto, setProfilePhoto] = useState("https://njbzosjkwbqlnhieyvug.supabase.co/storage/v1/object/public/profile-photos/default_pfp.png");
-
     const findButtonRef = useRef<HTMLButtonElement>(null);
-    // const profilePhotoImgRef = useRef<HTMLImageElement>(null);
     const ProfileHomePath = `/profile-detail/${profile!["user_id"]}`;
-
     const [tabOpen, setTabOpen] = useState<number | null>(null);
 
-    const signOutUser = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-
-            if (error) {
-                throw new Error("Failed to sign out user")
-            }
-        }
-        catch (e) {
-            console.error(e);
-        }
+    const signOutUser = () => {
+        window.location.href = `/redirect_uri?logout=${encodeURIComponent(`${window.location.origin}/logout`)}`;
     };
 
     useEffect(() => {

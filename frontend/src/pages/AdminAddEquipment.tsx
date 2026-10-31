@@ -15,7 +15,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import labels from '@/constants/labels';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -375,7 +375,7 @@ function AdminAddEquipmentModel() {
                                                 makerspace_id: selectedSpace.makerspace_id,
                                                 credential_model_id: selectedCredModel?.credential_model_id,
                                                 notes: notes,
-                                                specific_specs: JSON.stringify(customSpecs)
+                                                specific_specs: Object.fromEntries(customSpecs)
                                             }
                                         );
                                         const accMatPromises = Array.from(selectedAccMats).map((m) => apiPost('/equipment-accepted-materials/', {

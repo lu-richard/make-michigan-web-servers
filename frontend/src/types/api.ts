@@ -31,7 +31,7 @@ export interface User {
     system_theme: SystemTheme;
     locale: Locale;
     is_active: boolean;
-    is_staff: boolean;
+    profile_completed: boolean;
 }
 
 export interface Makerspace {

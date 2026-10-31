@@ -13,6 +13,12 @@ export class ApiError extends Error {
 
 type Params = Record<string, string | number | undefined>;
 
+// Django rejects writes from a logged-in session without this token; /me/ sets the csrftoken cookie it comes from.
+function csrfHeaders(): Record<string, string> {
+    const token = document.cookie.split('; ').find((c) => c.startsWith('csrftoken='))?.split('=')[1];
+    return token ? { 'X-CSRFToken': token } : {};
+}
+
 function buildUrl(path: string, params?: Params): string {
     const url = `${BASE_URL}${path}`;
 
@@ -67,7 +73,24 @@ export async function apiPost<T>(path: string, payload: Object): Promise<T> {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': 'Token <your_token>'
+            ...csrfHeaders()
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
+    }
+
+    return response.json() as Promise<T>;
+}
+
+export async function apiPatch<T>(path: string, payload: Object): Promise<T> {
+    const response = await fetch(buildUrl(path), {
+        method: "PATCH",
+        headers: {
+            'Content-Type': 'application/json',
+            ...csrfHeaders()
         },
         body: JSON.stringify(payload)
     });
@@ -82,6 +105,7 @@ export async function apiPost<T>(path: string, payload: Object): Promise<T> {
 export async function apiDelete(path: string, params?: Params): Promise<void> {
     const response = await fetch(buildUrl(path, params), {
         method: "DELETE",
+        headers: csrfHeaders()
     });
 
     if (!response.ok) {

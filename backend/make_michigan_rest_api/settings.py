@@ -83,7 +83,7 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.RemoteUserBackend',
+    'core.backends.ProxyRemoteUserBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -128,6 +128,7 @@ REST_FRAMEWORK = {
     'NUM_PROXIES': 2,
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+        'core.permissions.RoleWriteOrReadOnly',
     ],
 }
 

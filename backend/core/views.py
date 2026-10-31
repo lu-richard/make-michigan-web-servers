@@ -1,10 +1,15 @@
 from django.http import Http404
+from django.middleware.csrf import get_token
 from rest_framework import viewsets
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from django_filters import rest_framework as django_filters
 
 from .serializers import *
+from .permissions import IsOwnerOrStaff
 
 # Custom Pagination Styles
 
@@ -39,6 +44,11 @@ class CompositeKeyLookupMixin:
     e.g. profiles/<user_id>/pinned-equipment/<equipment_id>/ (see urls.py)."""
     composite_key_fields = []
 
+    def get_queryset(self):
+        # Nested routes scope rows to the parent in the URL, e.g. profiles/<user_id>/pinned-equipment/ lists one user's pins.
+        scope = {field: self.kwargs[field] for field in self.composite_key_fields if field in self.kwargs}
+        return super().get_queryset().filter(**scope)
+
     def get_object(self):
         # The router's flat /<prefix>/<pk>/ route can't address a multi-column key.
         if not all(field in self.kwargs for field in self.composite_key_fields):
@@ -48,6 +58,21 @@ class CompositeKeyLookupMixin:
         obj = get_object_or_404(self.filter_queryset(self.get_queryset()), **lookup)
         self.check_object_permissions(self.request, obj)
         return obj
+
+class OwnRowsUnlessStaffMixin:
+    """Non-staff users only see rows they own (owner_field holds their user_id); staff see everything."""
+    owner_field = None
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        if self.request.user.has_any_role(Role.STAFF):
+            return queryset
+
+        return queryset.filter(**{self.owner_field: self.request.user.pk})
+
+# Permissions: every viewset defaults to "any signed-in user reads, staff writes" (core.permissions.RoleWriteOrReadOnly,
+# set in settings.REST_FRAMEWORK). The viewsets below that differ say so with write_roles or permission_classes.
 
 # SQL View ViewSets
 
@@ -116,6 +141,7 @@ class ViewWishlistedCredentialModelViewSet(viewsets.ModelViewSet):
 # Standard Table ViewSets
 
 class UserViewSet(viewsets.ModelViewSet):
+    # Staff-only writes: users edit their own profile through /me/, whose serializer can't change roles.
     queryset = User.objects.all().order_by('user_id')
     serializer_class = UserSerializer
     pagination_class = StandardResultsSetPagination
@@ -130,16 +156,18 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentSerializer
     filterset_fields = ['makerspace_id', 'equipment_model_id', 'credential_model_id']
+    write_roles = [Role.STAFF, Role.SHOP_MANAGER, Role.SHOP_MENTOR]
 
 class EquipmentModelViewSet(viewsets.ModelViewSet):
     queryset = EquipmentModel.objects.all()
     serializer_class = EquipmentModelSerializer
     ordering_fields = ['equipment_model_name']
 
-class CredentialViewSet(viewsets.ModelViewSet):
+class CredentialViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = Credential.objects.all().order_by('credential_id')
     serializer_class = CredentialSerializer
     pagination_class = StandardResultsSetPagination
+    owner_field = 'recipient_user_id'
 
 class CredentialModelViewSet(viewsets.ModelViewSet):
     queryset = CredentialModel.objects.all()
@@ -204,6 +232,8 @@ class IssueReportViewSet(viewsets.ModelViewSet):
     serializer_class = IssueReportSerializer
     pagination_class = StandardResultsSetPagination
     filterset_fields = ['reporter_user']
+    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    owner_field = 'reporter_user_id'
 
 class PinnedEquipmentViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = PinnedEquipment.objects.all()
@@ -211,6 +241,8 @@ class PinnedEquipmentViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     composite_key_fields = ['user_id', 'equipment_id']
     filterset_fields = ['user_id', 'equipment_id']
     ordering_fields = ['created_at', 'last_updated']
+    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    owner_field = 'user_id'
 
 class WishlistedCredentialModelViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = WishlistedCredentialModels.objects.all()
@@ -218,3 +250,23 @@ class WishlistedCredentialModelViewSet(CompositeKeyLookupMixin, viewsets.ModelVi
     composite_key_fields = ['user_id', 'credential_model_id']
     filterset_fields = ['user_id', 'credential_model_id']
     ordering_fields = ['created_at', 'last_updated']
+    permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+    owner_field = 'user_id'
+
+# Current User
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def me(request):
+    """The signed-in user's profile. The frontend loads it on startup and PATCHes it from the complete-profile form."""
+    # Makes CsrfViewMiddleware send the csrftoken cookie that api.ts echoes back on writes.
+    get_token(request)
+
+    if request.method == 'PATCH':
+        serializer = MeSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        # Submitting the complete-profile form is what completes the profile, so the client can't skip it by sending the flag.
+        serializer.save(profile_completed=True)
+        return Response(serializer.data)
+
+    return Response(MeSerializer(request.user).data)

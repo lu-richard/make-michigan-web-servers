@@ -8,7 +8,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['user_id', 'uniqname', 'first_name', 'middle_initial', 'last_name', 'image_url', 'pronouns', 'roles', 'created_at', 'system_theme', 'locale', 'is_active', 'is_staff']
+        fields = ['user_id', 'uniqname', 'first_name', 'middle_initial', 'last_name', 'image_url', 'pronouns', 'roles', 'created_at', 'system_theme', 'locale', 'is_active', 'profile_completed']
+
+class MeSerializer(UserSerializer):
+    """The signed-in user's own profile. Personal details and roles are editable; identity and account flags are not.
+    Note: any role can be self-assigned here, including the ones that grant write access (see core.permissions)."""
+    user_id = serializers.UUIDField(read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        read_only_fields = ['uniqname', 'created_at', 'is_active', 'profile_completed']
+
+    def validate_roles(self, value):
+        # Without this, a JSON-encoded string gets checked character by character by the model's role validator.
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Expected a list of roles.")
+
+        return value
 
 class MakerspaceSerializer(serializers.ModelSerializer):
     class Meta:
