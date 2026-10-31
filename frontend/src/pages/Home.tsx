@@ -13,7 +13,7 @@ function Home() {
             <div className="relative mb-56 ml-20 z-5">
                 <h1 className="text-7xl">Welcome to<br /><span className="text-8xl font-bold text-navy-blue">MAKE MICHIGAN!</span></h1>
                 <ul className="text-[1.35rem] font-semibold pl-5 list-disc">
-                    <li className="mt-10 mb-3">Explore every public facility on North Campus to see what’s available</li>
+                    <li className="mt-10 mb-3">Explore every publicly-available U-M makerspace</li>
                     <li className="my-3">See guided training pathways to know exactly what’s needed for access</li>
                     <li className="my-3">Track your certifications through a personal dashboard</li>
                     <li className="my-3">Receive real-time support from a custom U-M Maizey AI assistant</li>

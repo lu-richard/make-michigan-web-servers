@@ -1,8 +1,8 @@
 import { Link, useParams, useOutletContext } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Loading from "./Loading";
-import type { CredentialModel, EquipmentLink, MakerspaceCardData, SkillTreeContext } from "../types/types";
-import { apiGet, apiGetList, apiPost, apiDelete } from "../lib/api";
+import type { CredentialModel, EquipmentLink, MakerspaceCardData, SkillTreeContext, WishlistedCredentialModel } from "../types/types";
+import { apiGet, apiGetOrNull, apiGetList, apiPost, apiDelete } from "../lib/api";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -13,36 +13,33 @@ const useCredentialModelDetailData = () => {
     const { makerspaceId, credModelId } = useParams();
     const [unlockedEquipment, setUnlockedEquipment] = useState<EquipmentLink[]>([]);
     const [credentialModel, setCredentialModel] = useState<CredentialModel | null>(null);
+    const [isWishlisted, setIsWishlisted] = useState(false);
     const [loading, setLoading] = useState(true);
     const { selectedMakerspace, setSelectedMakerspace, prereqMap } = useOutletContext<SkillTreeContext>();
     const { profile } = useAppContext();
 
     useEffect(() => {
-        if (!selectedMakerspace) {
-            const fetchSelectedMakerspace = async () => {
-                try {
-                    const data = await apiGet<MakerspaceCardData>(`/view-makerspace-cards/${makerspaceId!}`);
-                    setSelectedMakerspace(data);
-                }
-                catch (e) {
-                    console.error((e as Error).message);
-                }
+        const fetchSelectedMakerspace = async () => {
+            try {
+                const data = await apiGet<MakerspaceCardData>(`/view-makerspace-cards/${makerspaceId!}`);
+                setSelectedMakerspace(data);
             }
-
-            fetchSelectedMakerspace();
+            catch (e) {
+                console.error((e as Error).message);
+            }
         }
-    }, []);
 
-    useEffect(() => {
         const fetchCredentialModelDetailData = async () => {
             try {
-                const [credModelData, unlockEqData] = await Promise.all([
+                const [credModelData, unlockEqData, initIsWishlisted] = await Promise.all([
                     apiGet<CredentialModel>(`/credential-models/${credModelId!}/`),
                     apiGetList<EquipmentLink>('/equipment/', { credential_model_id: credModelId! }),
+                    apiGetOrNull<WishlistedCredentialModel>(`/profiles/${profile!.user_id}/wishlisted-credential-models/${credModelId}/`)
                 ]);
 
                 setCredentialModel(credModelData);
                 setUnlockedEquipment(unlockEqData);
+                setIsWishlisted(initIsWishlisted === null ? false : true);
             }
             catch (e) {
                 console.error((e as Error).message);
@@ -51,23 +48,26 @@ const useCredentialModelDetailData = () => {
                 setLoading(false);
             }
         };
+        
+        if (!selectedMakerspace) {
+            fetchSelectedMakerspace();
+        }
 
         fetchCredentialModelDetailData();
     }, []);
 
-    return { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, profile, loading };
+    return { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, isWishlisted, setIsWishlisted, profile, loading };
 };
 
 function CredentialModelDetail() {
-    const [isWishlisted, setIsWishlisted] = useState(false);
-    const { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, profile, loading } = useCredentialModelDetailData();
+    const { credentialModel, unlockedEquipment, selectedMakerspace, prereqMap, isWishlisted, setIsWishlisted, profile, loading } = useCredentialModelDetailData();
     const wishlistCredentialModel = async () => {
         try {
             if (!isWishlisted) {
                 const response = await apiPost('/wishlisted-credential-models/', {
-                    user: profile!.user_id,
-                    credential_model: credentialModel!.credential_model_id,
-                    makerspace: selectedMakerspace!.makerspace_id
+                    user_id: profile!.user_id,
+                    credential_model_id: credentialModel!.credential_model_id,
+                    makerspace_id: selectedMakerspace!.makerspace_id
                 });
 
                 console.log(response);

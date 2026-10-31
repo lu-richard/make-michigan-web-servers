@@ -1,4 +1,3 @@
-// import styles from '../styles/navbar.module.css';
 import { Link } from 'react-router-dom';
 import supabase from '../lib/supabase';
 import { useAppContext } from '../context/AppContext';
@@ -37,28 +36,12 @@ import { Button } from './ui/button';
 function Navbar() {
     const { profile } = useAppContext();
     const [profilePhoto, setProfilePhoto] = useState("https://njbzosjkwbqlnhieyvug.supabase.co/storage/v1/object/public/profile-photos/default_pfp.png");
-
     const findButtonRef = useRef<HTMLButtonElement>(null);
-    // const profilePhotoImgRef = useRef<HTMLImageElement>(null);
     const ProfileHomePath = `/profile-detail/${profile!["user_id"]}`;
-
     const [tabOpen, setTabOpen] = useState<number | null>(null);
 
-    // const toggleDropdown = (ref: React.RefObject<HTMLButtonElement | HTMLImageElement | null>) => {
-    //     ref.current?.classList.toggle(styles.active);
-    // };
-
-    const signOutUser = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-
-            if (error) {
-                throw new Error("Failed to sign out user")
-            }
-        }
-        catch (e) {
-            console.error(e);
-        }
+    const signOutUser = () => {
+        window.location.href = `/redirect_uri?logout=${encodeURIComponent(`${window.location.origin}/logout`)}`;
     };
 
     useEffect(() => {
@@ -77,40 +60,36 @@ function Navbar() {
     }, []);
 
     return (
-        <div className="flex justify-center items-center gap-8 pt-6 pr-12 pb-6 pl-16 bg-navy-blue text-[#fff]">
-            <Link to='/' className="flex justify-center items-center">
+        <nav className="flex items-center justify-between gap-8 px-12 py-6 bg-navy-blue text-[#fff]">
+            <Link to='/' className="shrink-0">
                 <img src={Logo} className="w-100" />
             </Link>
-            <div className="mr-12 flex justify-center items-center">
-                <div className="relative group mx-8">
+            <div className="flex items-center gap-16">
+                <div className="relative group">
                     <button type="button" ref={findButtonRef} className="flex justify-center items-center" onClick={() => setTabOpen((isTabOpen) => isTabOpen === 0 ? null : 0)}>
                         Find
                         <KeyboardArrowDownIcon className={`${tabOpen === 0 && "transition-transform rotate-180"}`} />
                     </button>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 0 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
-                    <div className={`absolute top-full left-0 mt-2 w-48 bg-white text-slate-900 shadow-xl rounded-lg py-2 z-2 ${tabOpen === 0 ? "block" : "hidden"}`}>
+                    <div className={`absolute top-[calc(100%+0.5rem)] left-0 w-48 bg-white text-slate-900 shadow-xl rounded-lg py-2 z-2 ${tabOpen === 0 ? "block" : "hidden"}`}>
                         <Link to='map' className="block text-text py-2 px-4" onClick={() => setTabOpen(null)}>Makerspace Map</Link>
                         <Link to='makerspaces' className="block text-text py-2 px-4" onClick={() => setTabOpen(null)}>Search Makerspaces</Link>
                         <Link to='equipment' className="block text-text py-2 px-4" onClick={() => setTabOpen(null)}>Search Equipment</Link>
                     </div>
                 </div>
-                <div className="relative group mx-8" onClick={() => setTabOpen(1)}>
+                <div className="relative group" onClick={() => setTabOpen(1)}>
                     <Link to='dashboard' className="text-[#fff]">Training</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 1 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
-                <div className="relative group mx-8" onClick={() => setTabOpen(2)}>
+                <div className="relative group" onClick={() => setTabOpen(2)}>
                     <Link to='admindashboard' className="text-[#fff]">Admin Dashboard</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 2 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
-                <div className="relative group mx-8" onClick={() => setTabOpen(3)}>
+                <div className="relative group" onClick={() => setTabOpen(3)}>
                     <Link to='askmaizey' className="text-[#fff]">Ask MAIZEY</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 3 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
-                <div className="relative group mx-8" onClick={() => setTabOpen(4)}>
-                    <Link to='blog' className="text-[#fff]">Community</Link>
-                    <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 4 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
-                </div>
-                <div className="relative group mx-8" onClick={() => setTabOpen(5)}>
+                <div className="relative group" onClick={() => setTabOpen(5)}>
                     <Link to='report-issue' className="text-[#fff]">Report an Issue</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 5 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
@@ -156,7 +135,7 @@ function Navbar() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-        </div>
+        </nav>
     );
 }
 

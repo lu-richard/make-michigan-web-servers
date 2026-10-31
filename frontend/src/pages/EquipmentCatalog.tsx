@@ -1,22 +1,24 @@
 // import styles from '../styles/catalog.module.css';
 import { useState, useEffect } from 'react';
-import type { EquipmentCardData } from '../types/types';
+import type { EquipmentCardData, PinnedEquipment } from '../types/types';
 import { apiGetList } from '../lib/api';
 import EquipmentCard from '../components/EquipmentCard';
 import Loading from './Loading';
 import SearchIcon from '@mui/icons-material/Search';
+import { useAppContext } from '@/context/AppContext';
 
 // Reusable hook for fetching equipment cards based on search value, limit, and order
 const useEquipmentCatalogData = () => {
   const [equipmentCards, setEquipmentCards] = useState<EquipmentCardData[]>([]);
+  const [eqPinIds, setEqPinIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(searchValue);
   const [searchLimit, setSearchLimit] = useState(20);
   const [isDescending, setIsDescending] = useState(false);
   const [isOrderedByModelName, setIsOrderedByModelName] = useState(false);
+  const { profile } = useAppContext();
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearchValue(searchValue), 500);
@@ -25,17 +27,22 @@ const useEquipmentCatalogData = () => {
   }, [searchValue]);
 
   useEffect(() => {
-    const fetchEquipmentCards = async () => {
+    const fetchData = async () => {
         try {
           setLoading(true);
 
-          const cards = await apiGetList<EquipmentCardData>('/view-equipment-cards/', {
-            search: debouncedSearchValue || undefined,
-            ordering: `${isDescending ? '-' : ''}${isOrderedByModelName ? 'equipment_model_name' : 'equipment_type'}`,
-            limit: searchLimit,
-          });
+          const [cards, pinnedEq] = await Promise.all([
+            apiGetList<EquipmentCardData>('/view-equipment-cards/', {
+              search: debouncedSearchValue || undefined,
+              ordering: `${isDescending ? '-' : ''}${isOrderedByModelName ? 'equipment_model_name' : 'equipment_type'}`,
+              limit: searchLimit,
+            }),
+            apiGetList<PinnedEquipment>(`/profiles/${profile!.user_id}/pinned-equipment/`)
+          ]);
 
           setEquipmentCards(cards);
+          
+          setEqPinIds(new Set(pinnedEq.map((pe) => pe.equipment_id)));
         }
         catch (e) {
           console.error((e as Error).message);
@@ -46,14 +53,14 @@ const useEquipmentCatalogData = () => {
         }
       };
 
-      fetchEquipmentCards();
+      fetchData();
     }, [debouncedSearchValue, searchLimit, isDescending, isOrderedByModelName]);
 
-    return { searchValue, setSearchValue, searchLimit, setSearchLimit, isDescending, setIsDescending, isOrderedByModelName, setIsOrderedByModelName, equipmentCards, loading, errorMessage };
+    return { searchValue, setSearchValue, searchLimit, setSearchLimit, isDescending, setIsDescending, isOrderedByModelName, setIsOrderedByModelName, equipmentCards, eqPinIds, loading, errorMessage };
   };
 
 function EquipmentCatalog() {
-    const { searchValue, setSearchValue, searchLimit, setSearchLimit, isDescending, setIsDescending, isOrderedByModelName, setIsOrderedByModelName, equipmentCards, loading, errorMessage } = useEquipmentCatalogData();
+    const { searchValue, setSearchValue, searchLimit, setSearchLimit, isDescending, setIsDescending, isOrderedByModelName, setIsOrderedByModelName, equipmentCards, eqPinIds, loading, errorMessage } = useEquipmentCatalogData();
 
     return (
         <>
@@ -83,7 +90,7 @@ function EquipmentCatalog() {
                       equipmentCards.length > 0 ?
                       <>
                         <div className="grid grid-cols-4 gap-4 max-w-[80vw] mt-38 mb-8 mx-auto">
-                          {equipmentCards.map((equipmentCard) => <EquipmentCard key={equipmentCard["equipment_id"]} equipmentCard={equipmentCard} />)}
+                          {equipmentCards.map((equipmentCard) => <EquipmentCard key={equipmentCard["equipment_id"]} equipmentCard={equipmentCard} initIsPinned={eqPinIds.has(equipmentCard.equipment_id)} />)}
                         </div>
                         <p className="text-center mt-16 mb-12">Results 1-{equipmentCards.length}</p>
                         {

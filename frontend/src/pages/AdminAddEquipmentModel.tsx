@@ -227,7 +227,7 @@ function AdminAddEquipmentModel() {
                                                 equipment_model_name: fullName === "" ? make + " " + model + " " + type : fullName,
                                                 is_cnc: isCNC,
                                                 specs_url: specsURL === "" ? null : specsURL,
-                                                specific_specs: JSON.stringify(customSpecs)
+                                                specific_specs: Object.fromEntries(customSpecs)
                                             }
                                         );
                                         const capPromises = Array.from(selectedCaps).map((c) => apiPost('/equipment-model-capabilities/', {

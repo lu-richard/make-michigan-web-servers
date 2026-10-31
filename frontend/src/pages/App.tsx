@@ -1,11 +1,9 @@
 import { Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
-import type { Session } from '@supabase/supabase-js';
 import type { ProfileData } from '../types/types';
 import { apiGet } from '../lib/api';
 import Navbar from '../components/Navbar';
-import supabase from '../lib/supabase';
 import styles from '../styles/app.module.css';
 
 // // Custom, reusable hook for fetching all data from Supabase necessary for UI
@@ -82,26 +80,56 @@ function App() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfile = async (s: Session | null) => {
-      try {
-        if (s) {
-          const data = await apiGet<ProfileData>(`/profiles/${s.user.id}/`);
-          setProfile(data);
-        }
-        else {
-          setProfile(null);
-        }
-      }
-      catch (e) {
-        console.error((e as Error).message);
-      }
-    };
+  // useEffect(() => {
+  //   // User whose profile is loaded or loading, so repeat auth events for the same user
+  //   // (TOKEN_REFRESHED, SIGNED_IN on tab refocus) don't refetch it.
+  //   let profileUserId: string | null = null;
 
-    const fetchInitialSession = async () => {
+  //   const fetchProfile = async (s: Session | null) => {
+  //     if (!s) {
+  //       profileUserId = null;
+  //       setProfile(null);
+  //       return;
+  //     }
+
+  //     if (s.user.id === profileUserId) {
+  //       return;
+  //     }
+
+  //     profileUserId = s.user.id;
+
+  //     try {
+  //       const data = await apiGet<ProfileData>(`/profiles/${s.user.id}/`);
+  //       setProfile(data);
+  //     }
+  //     catch (e) {
+  //       // Allow a retry on the next auth event (e.g. SignUp's profile didn't exist yet).
+  //       profileUserId = null;
+  //       console.error((e as Error).message);
+  //     }
+  //   };
+
+  //   // Supabase emits INITIAL_SESSION as soon as we subscribe, so no separate getSession() call is needed.
+  //   const { data: { subscription } } = supabase.auth.onAuthStateChange(
+  //     (event, session) => {
+  //       fetchProfile(session).finally(() => {
+  //         if (event === 'INITIAL_SESSION') {
+  //           setLoading(false);
+  //         }
+  //       });
+  //     }
+  //   );
+
+  //   return () => subscription.unsubscribe();
+  // }, []);
+
+  useEffect(() => {
+    // Apache has already signed the user in with Okta before this page loads; Django resolves (and on first
+    // login creates) their profile from the identity Apache forwards with this request.
+    const fetchProfile = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        await fetchProfile(session);
+        const data = await apiGet<ProfileData>('/me/');
+        setProfile(data);
       }
       catch (e) {
         console.error((e as Error).message);
@@ -111,21 +139,7 @@ function App() {
       }
     };
 
-    fetchInitialSession();
-    // supabase.auth.getSession().then(
-    //   ({ data: { session } }) => {
-    //     setSession(session);
-    //     fetchProfile(session);
-    //   }
-    // );
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        fetchProfile(session);
-      }
-    );
-
-    return subscription.unsubscribe;
+    fetchProfile();
   }, []);
 
   return (

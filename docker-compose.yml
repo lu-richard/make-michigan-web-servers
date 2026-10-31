@@ -9,6 +9,8 @@ services:
   frontend:
     build: ./frontend
     restart: always
+    volumes:
+      - ./frontend/secrets:/usr/local/apache2/conf/secrets:ro
     expose:
       - "80"
     depends_on:

@@ -84,7 +84,10 @@ function MakerspaceDetail() {
                         <div className="mt-2">
                             <h3 className="text-nowrap font-semibold text-xl">Who Can Use This Space?</h3>
                             <ul>
-                                {makerspace.audience?.map((aud, index) => <li key={index} className="text-lg">{aud}</li>)}
+                                {
+                                    makerspace.audience === null ?
+                                    <li className="text-lg">Everyone</li> :
+                                    makerspace.audience?.map((aud, index) => <li key={index} className="text-lg">{aud}</li>)}
                             </ul>
                         </div>
                     </div>

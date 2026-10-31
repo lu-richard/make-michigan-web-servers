@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 // import CloseIcon from '@mui/icons-material/Close';
 
 function IssueReportCard({ issueReportCard }: { issueReportCard: IssueReportCardData }) {
-    const reportDetailPath = `report-detail/${issueReportCard["issue_report_id"]}`;
+    const reportDetailPath = `/report-detail/${issueReportCard["issue_report_id"]}`;
 
     return (
         <div className="relative flex justify-between items-center py-8">

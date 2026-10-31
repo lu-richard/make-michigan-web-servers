@@ -1,6 +1,4 @@
 import App from "../pages/App";
-import SignUp from "../pages/SignUp";
-import SignIn from "../pages/SignIn";
 import Error from "../pages/Error";
 import Home from "../pages/Home";
 import Map from "../pages/Map";
@@ -10,9 +8,7 @@ import MakerspaceCatalog from "../pages/MakerspaceCatalog";
 import MakerspaceDetail from "../pages/MakerspaceDetail";
 import MakerProfile from "../pages/MakerProfile";
 import AskMaizey from "../pages/AskMaizey";
-import Blog from "../pages/Blog";
 import ProtectedRoute from "../components/ProtectedRoute";
-import UnauthenticatedRoute from "../components/UnauthenticatedRoute";
 // import Training from "../pages/Training";
 import AdminDashboard from "../pages/AdminDashboard";
 import AdminDashboardReports from "../pages/AdminDashboardReports";
@@ -31,6 +27,7 @@ import ReportDetail from "../pages/ReportDetail";
 import SkillTreeVisual from "../pages/SkillTreeVisual";
 import CredentialModelDetail from "../pages/CredentialModelDetail";
 import ReportIssue from "@/pages/ReportIssue";
+import CompleteProfile from "@/pages/CompleteProfile";
 import React from "react";
 
 void React
@@ -42,16 +39,10 @@ const routes = [
         errorElement: <Error />,
         children: [
             {
-                element: <UnauthenticatedRoute />,
-                children: [
-                    { path: 'signup', element: <SignUp /> },
-                    { path: 'signin', element: <SignIn /> },
-                ]
-            },
-            {
                 element: <ProtectedRoute />,
                 children: [
                     { index: true, element: <Home /> },
+                    { path: 'complete-profile', element: <CompleteProfile /> },
                     { path: 'map', element: <Map /> },
                     { path: 'makerspaces', element: <MakerspaceCatalog /> },
                     { path: 'makerspace-detail/:id', element: <MakerspaceDetail /> },
@@ -60,7 +51,6 @@ const routes = [
                     { path: 'report-issue', element: <ReportIssue /> },
                     { path: 'dashboard', element: <MakerProfile /> },
                     { path: 'dashboard/my-trainings', element: <MyTrainings /> },
-                    { path: 'dashboard/wishlist', element: <MakerProfile /> },
                     {
                         path: 'dashboard/trainings',
                         element: <SkillTree />,
@@ -74,7 +64,6 @@ const routes = [
                         element: <AdminDashboard />,
                         children: [
                             { index: true, element: <AdminDashboardReports /> },
-                            { path: 'report-detail/:id', element: <ReportDetail /> },
                             { path: 'training', element: <AdminDashboardTraining /> },
                             {
                                 path: 'usage',
@@ -89,9 +78,9 @@ const routes = [
                             { path: 'add-equipment', element: <AdminAddEquipment /> },
                         ]
                     },
-                    { path: 'admin-profile-detail/:id', element: <AdminProfileDetail /> },
+                    { path: 'report-detail/:id', element: <ReportDetail /> },
+                    { path: 'profile-creds-detail/:id', element: <AdminProfileDetail /> },
                     { path: 'askmaizey', element: <AskMaizey /> },
-                    { path: 'blog', element: <Blog /> },
                     { path: 'profile-detail/:id', element: <ProfileHome /> },
                 ]
             },

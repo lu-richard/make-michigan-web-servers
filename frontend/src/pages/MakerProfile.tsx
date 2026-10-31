@@ -123,20 +123,22 @@ function MakerProfile() {
                                 <p>Track your trainings, reservations, events and makerspace access.</p>
                             </CardHeader>
                         </Card>
-                        <section className="flex flex-row justify-center items-center gap-4">
+                        <section className="flex flex-row justify-center items-stretch gap-4">
                             <Card className="w-full min-h-80 pt-0">
                                 <CardHeader className="flex flex-row justify-between px-12 py-3 bg-navy-blue">
                                     <CardTitle className="text-2xl font-bold text-white">Recent Certifications</CardTitle>
                                     <Button className="bg-maize text-black">
-                                        All Certifications
+                                        <Link to={`/profile-creds-detail/${profile!.user_id}`}>
+                                            All Certifications
+                                        </Link>
                                     </Button>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] auto-rows-fr gap-6">
                                     {
                                         userCredentials.map(
                                             (uc) =>
-                                            <Card key={uc.credential_id} className="w-fit p-0">
-                                                <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
+                                            <Card key={uc.credential_id} className="h-full p-0">
+                                                <CardContent className="flex flex-row justify-between gap-2 px-0 h-full">
                                                     <div className="p-4">
                                                         <CardTitle className="text-2xl">{uc.credential_model_name}</CardTitle>
                                                         <p>{uc.makerspace_name}</p>
@@ -164,12 +166,12 @@ function MakerProfile() {
                                         </Link>
                                     </Button>
                                 </CardHeader>
-                                <CardContent className="flex flex-row gap-6 flex-wrap">
+                                <CardContent className="grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] auto-rows-fr gap-6">
                                     {
                                         pinnedEquipment.map(
                                             (pe, i) =>
-                                            <Card key={pe.equipment_id} className="w-fit p-0">
-                                                <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
+                                            <Card key={pe.equipment_id} className="h-full p-0">
+                                                <CardContent className="flex flex-row justify-between gap-2 px-0 h-full">
                                                     <div className="p-4">
                                                         <CardTitle className="text-2xl">{pe.equipment_model_name}</CardTitle>
                                                         <p>{pe.equipment_type}</p>
@@ -207,7 +209,7 @@ function MakerProfile() {
                                             <CardContent className="flex flex-row justify-center align-center gap-2 px-0">
                                                 <div className="p-4">
                                                     <CardTitle className="text-2xl">{wcm.credential_model_name}</CardTitle>
-                                                    <p>{wcm.credential_type}</p>
+                                                    <p>{toTitleCase(wcm.credential_type)}</p>
                                                     <p>{wcm.makerspace_name}</p>
                                                 </div>
                                                 <div className="bg-black flex flex-col justify-center align-center px-2">
@@ -230,28 +232,25 @@ function MakerProfile() {
                                 {
                                     issueReports.map(
                                         (ir) =>
-                                        <Card key={ir.issue_report_id}>
-                                            <CardHeader>
-                                                <CardTitle>
-                                                    {ir.title}
-                                                </CardTitle>
-                                                <p>{ir.is_resolved ? "Resolved" : "Unresolved"}</p>
-                                                <p>{toTitleCase(ir.issue_type)}</p>
-                                                <p>Reported On: {ir.created_at}</p>
-                                            </CardHeader>
-                                            <CardContent>
-                                                {/* issue_report_id: string;
-                                                created_at: string;
-                                                last_updated: string;
-                                                reporter_user_id: string | null;
-                                                issue_type: string;
-                                                description: string;
-                                                is_resolved: boolean;
-                                                equipment_id: string;
-                                                overseer_user_id: string | null;
-                                                title: string; */}
-                                                <p>{ir.description}</p>
-                                            </CardContent>
+                                        <Card key={ir.issue_report_id} className="w-fit flex flex-row justify-center align-center p-0">
+                                            <div className="py-6 px-2">
+                                                <CardHeader className="min-w-120">
+                                                    <CardTitle className="text-2xl">
+                                                        {ir.title}
+                                                    </CardTitle>
+                                                    <p>{ir.is_resolved ? "Resolved" : "Unresolved"}</p>
+                                                    <p>{toTitleCase(ir.issue_type)}</p>
+                                                    <p>Reported On: {ir.created_at}</p>
+                                                </CardHeader>
+                                                <CardContent className="min-w-120">
+                                                    <p>{ir.description}</p>
+                                                </CardContent>
+                                            </div>
+                                            <div className="bg-black flex flex-col justify-center align-center px-4">
+                                                <Link to={`/report-detail/${ir.issue_report_id}`}>
+                                                    <ArrowForwardIcon className="text-white min-w-10 min-h-10" />
+                                                </Link>
+                                            </div>
                                         </Card>
                                     )
                                 }

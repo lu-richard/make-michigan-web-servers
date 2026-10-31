@@ -105,7 +105,6 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, uniqname, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(uniqname, **extra_fields)
 
@@ -122,12 +121,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     system_theme = models.CharField(max_length=10, choices=SystemTheme.choices, default=SystemTheme.LIGHT)
     locale = models.CharField(max_length=10, choices=Locale.choices, default=Locale.EN_US)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    # False until the user submits the complete-profile form (PATCH /api/me/), which collects what Okta doesn't provide.
+    profile_completed = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = "uniqname"
     REQUIRED_FIELDS = ["first_name", "last_name"]
+
+    def has_any_role(self, *roles):
+        return any(role in (self.roles or []) for role in roles)
+
+    @property
+    def is_staff(self):
+        # Django admin and DRF's IsAdminUser read is_staff; derive it from roles rather than storing a second flag.
+        return self.has_any_role(Role.STAFF)
 
     class Meta:
         db_table = "profiles"

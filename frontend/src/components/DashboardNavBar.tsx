@@ -4,7 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 const tabs = [
     { to: '/dashboard', label: 'Maker Profile' },
     { to: '/dashboard/my-trainings', label: 'My Trainings' },
-    { to: '/dashboard/wishlist', label: 'Wishlist' },
     { to: '/dashboard/trainings', label: 'Trainings' },
 ];
 

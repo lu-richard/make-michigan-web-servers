@@ -60,8 +60,7 @@ function SignUp() {
                 roles: Array.from(roles),
                 system_theme: "light",
                 locale: "en_US",
-                is_active: 1,
-                is_staff: 0
+                is_active: 1
             });
             setProfile!(response);
         }
