@@ -19,6 +19,30 @@ function csrfHeaders(): Record<string, string> {
     return token ? { 'X-CSRFToken': token } : {};
 }
 
+// Apache answers API calls with 401 once the Okta session is gone (signed out, or idle past OIDCSessionInactivityTimeout).
+// Reloading turns that into a page request, which Apache redirects to the Okta sign-in. The timestamp stops a reload loop
+// if something other than an expired session keeps returning 401.
+function reloadIfSessionExpired(response: Response) {
+    if (response.status !== 401) {
+        return;
+    }
+
+    try {
+        const lastReload = Number(sessionStorage.getItem('sessionExpiredReloadAt'));
+
+        if (Date.now() - lastReload < 10000) {
+            return;
+        }
+
+        sessionStorage.setItem('sessionExpiredReloadAt', String(Date.now()));
+    }
+    catch {
+        // Storage unavailable (e.g. blocked); reload anyway.
+    }
+
+    window.location.reload();
+}
+
 function buildUrl(path: string, params?: Params): string {
     const url = `${BASE_URL}${path}`;
 
@@ -42,6 +66,8 @@ function buildUrl(path: string, params?: Params): string {
 export async function apiGet<T>(path: string, params?: Params): Promise<T> {
     const response = await fetch(buildUrl(path, params));
 
+    reloadIfSessionExpired(response);
+
     if (!response.ok) {
         throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
     }
@@ -51,6 +77,8 @@ export async function apiGet<T>(path: string, params?: Params): Promise<T> {
 
 export async function apiGetOrNull<T>(path: string, params?: Params): Promise<T | null> {
     const response = await fetch(buildUrl(path, params));
+
+    reloadIfSessionExpired(response);
 
     if (response.status === 404) {
         return null;
@@ -78,6 +106,8 @@ export async function apiPost<T>(path: string, payload: Object): Promise<T> {
         body: JSON.stringify(payload)
     });
 
+    reloadIfSessionExpired(response);
+
     if (!response.ok) {
         throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
     }
@@ -95,6 +125,8 @@ export async function apiPatch<T>(path: string, payload: Object): Promise<T> {
         body: JSON.stringify(payload)
     });
 
+    reloadIfSessionExpired(response);
+
     if (!response.ok) {
         throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);
     }
@@ -107,6 +139,8 @@ export async function apiDelete(path: string, params?: Params): Promise<void> {
         method: "DELETE",
         headers: csrfHeaders()
     });
+
+    reloadIfSessionExpired(response);
 
     if (!response.ok) {
         throw new ApiError(response.status, `Request to ${path} failed with status ${response.status}`);

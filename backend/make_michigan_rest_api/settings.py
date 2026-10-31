@@ -140,6 +140,10 @@ DATABASES = {
     'default': env.db('DATABASE_URL')
 }
 
+# Strict mode makes MySQL reject values that don't fit (e.g. an over-long uniqname) instead of silently truncating them.
+if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+    DATABASES['default'].setdefault('OPTIONS', {})['init_command'] = "SET sql_mode='STRICT_TRANS_TABLES'"
+
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
 
 # Off by default so local http works; turn on in production behind HTTPS.
