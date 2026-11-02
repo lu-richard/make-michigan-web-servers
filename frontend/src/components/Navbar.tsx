@@ -81,10 +81,13 @@ function Navbar() {
                     <Link to='dashboard' className="text-[#fff]">Training</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 1 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                 </div>
-                <div className="relative group" onClick={() => setTabOpen(2)}>
-                    <Link to='admindashboard' className="text-[#fff]">Admin Dashboard</Link>
-                    <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 2 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
-                </div>
+                {
+                    profile!.roles.includes("staff") &&
+                    <div className="relative group" onClick={() => setTabOpen(2)}>
+                        <Link to='admindashboard' className="text-[#fff]">Admin Dashboard</Link>
+                        <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 2 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
+                    </div>
+                }
                 <div className="relative group" onClick={() => setTabOpen(3)}>
                     <Link to='askmaizey' className="text-[#fff]">Ask MAIZEY</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 3 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>

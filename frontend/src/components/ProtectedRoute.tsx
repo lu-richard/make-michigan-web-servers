@@ -21,6 +21,11 @@ function ProtectedRoute() {
         return <Navigate to="/complete-profile" />;
     }
 
+    // Non-staff users cannot navigate to the admin dashboard
+    if (!profile.roles.includes("staff") && pathname.startsWith('/admindashboard')) {
+        return <Navigate to ="/" />;
+    }
+
     return <Outlet />;
 }
 
