@@ -13,7 +13,6 @@ type ProfileInfoProps = {
 };
 
 const ProfileInfo = ({ profilePhoto, profile }: ProfileInfoProps) => {
-
     const [skills, setSkills] = useState<string[]>([])
     const [teams, setTeams] = useState<string[]>([])
     const [bio, setBio] = useState<string>("")

@@ -146,6 +146,7 @@ function App() {
       <AppContext.Provider value={{ profile, setProfile, loading }}>
         {
           profile &&
+          profile.profile_completed &&
           <header>
             <Navbar />
           </header>
@@ -155,8 +156,9 @@ function App() {
         </main>
         {
           profile &&
+          profile.profile_completed &&
           <footer>
-            <p className={styles.footer}>&copy; 2025 Make Michigan</p>
+            <p className={styles.footer}>&copy; 2026 Make Michigan</p>
           </footer>
         }
       </AppContext.Provider>

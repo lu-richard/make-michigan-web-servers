@@ -2,3 +2,5 @@ node_modules/
 dist/
 .git/
 secrets/
+# Local dev overrides (e.g. .env.local's dev proxy settings) never belong in a production image.
+*.local
