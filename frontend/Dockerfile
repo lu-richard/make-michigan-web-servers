@@ -5,6 +5,7 @@ COPY package*.json ./
 # npm ci installs exactly from the lockfile; the cache mount keeps downloaded packages between builds.
 RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
+ENV NODE_OPTIONS=--max-old-space-size=1536
 RUN npm run build
 
 FROM httpd:2.4
