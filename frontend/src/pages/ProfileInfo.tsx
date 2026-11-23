@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+// import React, { useEffect, useState } from 'react'
 import labels from "../constants/labels";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProfileData } from '@/types/types';
 import { Separator } from '@/components/ui/separator';
 
 // Keep React in scope for JSX linting, without triggering unused-import warnings.
-void React;
+// void React;
 
 type ProfileInfoProps = {
   profilePhoto: string;
@@ -13,17 +13,17 @@ type ProfileInfoProps = {
 };
 
 const ProfileInfo = ({ profilePhoto, profile }: ProfileInfoProps) => {
-    const [skills, setSkills] = useState<string[]>([])
-    const [teams, setTeams] = useState<string[]>([])
-    const [bio, setBio] = useState<string>("")
-    const [makerLevel, setMakerLevel] = useState<string>("")
+    // const [skills, setSkills] = useState<string[]>([])
+    // const [teams, setTeams] = useState<string[]>([])
+    // const [bio, setBio] = useState<string>("")
+    // const [makerLevel, setMakerLevel] = useState<string>("")
 
-    useEffect(() => {
-        setSkills(["Coding", "3D Printing", "Prototyping", "CAD", "Embedded Systems"])
-        setTeams(["EcoData", "TechPlus", "M-Fly"])
-        setBio("Click Edit to Change")
-        setMakerLevel("Learner")
-    }, [])
+    // useEffect(() => {
+    //     setSkills(["Coding", "3D Printing", "Prototyping", "CAD", "Embedded Systems"])
+    //     setTeams(["EcoData", "TechPlus", "M-Fly"])
+    //     setBio("Click Edit to Change")
+    //     setMakerLevel("Learner")
+    // }, [])
 
   return (
     <div className="w-full pb-16">
@@ -31,12 +31,12 @@ const ProfileInfo = ({ profilePhoto, profile }: ProfileInfoProps) => {
             My Profile
         </h1>
         <Card className="relative w-full flex flex-row items-center gap-6 p-6">
-            <button
+            {/* <button
                 type="button"
                 className="absolute top-6 right-6 text-sm font-medium text-arb-blue"
             >
                 Edit
-            </button>
+            </button> */}
             <div className="w-40 h-auto rounded-full overflow-hidden shrink-0">
                 <img src={profilePhoto} className="w-full h-full object-cover" />
             </div>
@@ -80,7 +80,7 @@ const ProfileInfo = ({ profilePhoto, profile }: ProfileInfoProps) => {
             </span>
         </div>
         <Separator className='my-12'/>
-        <div className='relative'>
+        {/* <div className='relative'>
             <button
                 type="button"
                 className="absolute top-0 right-6 text-sm font-medium text-arb-blue"
@@ -144,7 +144,7 @@ const ProfileInfo = ({ profilePhoto, profile }: ProfileInfoProps) => {
             <div>
                 LinkedIn goes here
             </div>
-        </div>
+        </div> */}
     </div>
 
   )

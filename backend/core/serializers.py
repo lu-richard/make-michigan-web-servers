@@ -12,7 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class MeSerializer(UserSerializer):
     """The signed-in user's own profile. Personal details and roles are editable; identity and account flags are not.
+    Only the roles: 'undergrad_student' and 'grad_student' are allowed currently.
+
     Note: any role can be self-assigned here, including the ones that grant write access (see core.permissions)."""
+
     user_id = serializers.UUIDField(read_only=True)
 
     class Meta(UserSerializer.Meta):
@@ -22,6 +25,9 @@ class MeSerializer(UserSerializer):
         # Without this, a JSON-encoded string gets checked character by character by the model's role validator.
         if not isinstance(value, list):
             raise serializers.ValidationError("Expected a list of roles.")
+
+        if "alum" in value or "shop_mentor" in value or "shop_manager" in value or "staff" in value:
+            raise serializers.ValidationError("One or more invalid roles.")
 
         return value
 

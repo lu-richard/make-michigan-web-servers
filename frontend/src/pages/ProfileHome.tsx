@@ -7,8 +7,8 @@ import { apiGetOrNull } from "../lib/api";
 import { useParams } from 'react-router-dom';
 import Loading from "./Loading";
 import ProfileInfo from "./ProfileInfo";
-import ProfileSettings from "./ProfileSettings";
-import ProfileCertifications from "./ProfileCertifications";
+// import ProfileSettings from "./ProfileSettings";
+// import ProfileCertifications from "./ProfileCertifications";
 
 void React
 
@@ -56,11 +56,11 @@ const useProfileHomeData = () => {
 
 function ProfileHome() {
     const { profile, profilePhoto, loading } = useProfileHomeData();
-    const [page, setPage] = useState<number>(0); // 0 = info, 1 = certifications, 2 = settings
+    // const [page, setPage] = useState<number>(0); // 0 = info, 1 = certifications, 2 = settings
 
     return (
         <div className="w-full">
-            <div className="flex items-center mb-6 px-28 bg-main-bg drop-shadow-sm">
+            {/* <div className="flex items-center mb-6 px-28 bg-main-bg drop-shadow-sm">
                 <button
                     type="button"
                     onClick={() => setPage(0)}
@@ -94,15 +94,16 @@ function ProfileHome() {
                         aria-hidden
                     />
                 </button>
-            </div>
+            </div> */}
 
             {loading ? (
                 <Loading />
             ) : profile ? (
                 <div className="py-8 mx-32">
-                    {page === 0 && <ProfileInfo profilePhoto={profilePhoto} profile={profile} />}
+                    {/* {page === 0 && <ProfileInfo profilePhoto={profilePhoto} profile={profile} />}
                     {page === 1 && <ProfileCertifications />}
-                    {page === 2 && <ProfileSettings />}
+                    {page === 2 && <ProfileSettings />} */}
+                    <ProfileInfo profilePhoto={profilePhoto} profile={profile} />
                 </div>
             ) : (
                 <p>The page you are looking for does not exist.</p>

@@ -9,13 +9,13 @@ function AdminCredentialListItem({ userCredential }: { userCredential: AdminCred
             <p className={styles.status}>{labels[userCredential["credential_status"] as keyof typeof labels]}</p>
             <p className={styles["completion-date"]}>{userCredential["completion_date"]}</p>
             <p className={styles["issuing-makerspace-name"]}>{userCredential["makerspace_name"]}</p>
-            {
+            {/* {
                 userCredential["credential_status"] !== "active_user" &&
                 <div className={styles["quick-approve"]}>
                     <button type="button" className={styles.approve}>Approve</button>
                     <button type="button" className={styles.deny}>Deny</button>
                 </div>
-            }
+            } */}
         </div>
     );
 }

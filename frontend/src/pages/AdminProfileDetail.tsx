@@ -14,13 +14,14 @@ const useAdminProfileDetailData = () => {
     const [credentials, setCredentials] = useState<AdminCredential[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchValue, setSearchValue] = useState("");
-    // const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
+    const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
+    const [searchLimit, setSearchLimit] = useState(10);
 
-    // useEffect(() => {
-    //     const timeout = setTimeout(() => setDebouncedSearchValue(searchValue), 500);
+    useEffect(() => {
+        const timeout = setTimeout(() => setDebouncedSearchValue(searchValue), 500);
 
-    //     return clearTimeout(timeout);
-    // }, []);
+        return clearTimeout(timeout);
+    }, [searchValue]);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -35,7 +36,11 @@ const useAdminProfileDetailData = () => {
 
         const fetchCredentials = async () => {
             try {
-                const data = await apiGetList<AdminCredential>('/view-credentials-admin/', { recipient_user_id: id });
+                const data = await apiGetList<AdminCredential>('/view-credentials-admin/', {
+                    recipient_user_id: id,
+                    search: debouncedSearchValue || undefined,
+                    limit: searchLimit,
+                });
                 setCredentials(data);
             }
             catch (e) {
@@ -51,13 +56,13 @@ const useAdminProfileDetailData = () => {
         };
 
         fetchAdminProfile();
-    }, []);
+    }, [debouncedSearchValue, searchLimit]);
 
-    return { searchValue, setSearchValue, profile, credentials, loading };
+    return { searchValue, setSearchValue, profile, credentials, loading, searchLimit, setSearchLimit };
 };
 
 function AdminProfileDetail() {
-    const { searchValue, setSearchValue, profile, credentials, loading } = useAdminProfileDetailData();
+    const { searchValue, setSearchValue, profile, credentials, loading, searchLimit, setSearchLimit } = useAdminProfileDetailData();
 
     return (
         <>
@@ -69,7 +74,7 @@ function AdminProfileDetail() {
                     <h2 className={styles["student-name"]}>{profile!["first_name"]} {profile!["middle_initial"] && profile!["middle_initial"] + ". "}{profile!["last_name"]}</h2>
                     <div className={styles["roles"]}>
                         {profile.roles?.map((role) => <p key={role} className={styles.role}>{labels[role]}</p>)}
-                        <p className={`${styles.role} ${styles["modify-or-revoke"]}`}>Modify or Revoke a Certificate</p>
+                        {/* <p className={`${styles.role} ${styles["modify-or-revoke"]}`}>Modify or Revoke a Certificate</p> */}
                     </div>
                     <div className={styles["search-bar"]}>
                         <SearchIcon />
@@ -80,13 +85,20 @@ function AdminProfileDetail() {
                         <p className={styles["column-name"]}>Status</p>
                         <p className={styles["column-name"]}>Completion Date</p>
                         <p className={styles["column-name"]}>Name of Issuing Makerspace</p>
-                        <p className={styles["column-name"]}>Quick Approve</p>
+                        {/* <p className={styles["column-name"]}>Quick Approve</p> */}
                     </div>
                     {
                         credentials.length === 0 ? <p className={styles["no-results-message"]}>No Certificates Yet</p> :
-                        <div>
-                            {credentials.map((userCredential) => <AdminCredentialListItem key={userCredential["credential_id"]} userCredential={userCredential} />)}
-                        </div>
+                        <>
+                            <ul>
+                                {credentials.map((userCredential) => <li key={userCredential["credential_id"]} className="border-t last:border-b"><AdminCredentialListItem userCredential={userCredential} /></li>)}
+                            </ul>
+                            <p className="text-center mt-16 mb-12">Results 1-{credentials.length}</p>
+                            {
+                                credentials.length === searchLimit &&
+                                <button type="button" className="block mx-auto bg-arb-blue text-[#fff] py-3 px-5 rounded-3xl hover:bg-arb-blue-hover cursor-pointer" onClick={() => setSearchLimit((searchLimit) => searchLimit + 10)}>See More</button>
+                            }
+                        </>
                     }
                 </div> :
                 <p>The page you are looking for does not exist.</p>

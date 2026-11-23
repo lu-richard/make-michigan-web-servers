@@ -27,15 +27,19 @@
 
 .roles {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 0.5rem;
     margin-top: 0.75rem;
 }
 
 .role {
-    padding: 0.5rem 1rem;
-    border-radius: 1.2rem;
-    border: 0.1rem solid var(--neutral-200);
-    margin-right: 0.75rem;
+    padding: 0.25rem 0.875rem;
+    border-radius: 9999px;
+    border: 0.1rem solid black;
+    background-color: var(--neutral-100);
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 .modify-or-revoke {

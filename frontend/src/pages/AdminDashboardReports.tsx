@@ -9,17 +9,29 @@ import Loading from "./Loading";
 import IssueReportCard from "../components/IssueReportCard";
 import SearchIcon from '@mui/icons-material/Search';
 
-function AdminDashboardReports() {
-    // const { profile } = useAppContext();
+const useAdminDashboardReportsData = () => {
+    const [searchValue, setSearchValue] = useState("");
+    const [debouncedSearchValue, setDebouncedSearchValue] = useState(searchValue);
+    const [searchLimit, setSearchLimit] = useState(10);
     const [issueReports, setIssueReports] = useState<IssueReportCardData[]>([]);
     const [loading, setLoading] = useState(true);
     const [isActive, setIsActive] = useState(true);
 
     useEffect(() => {
+        const timeout = setTimeout(() => setDebouncedSearchValue(searchValue), 500);
+
+        return () => clearTimeout(timeout);
+    }, [searchValue]);
+
+    useEffect(() => {
         const fetchIssueReports = async () => {
             try {
-                const data = await apiGetList<IssueReportCardData>('/view-issue-report-cards/');
-                setIssueReports(data);
+                const issueReports = await apiGetList<IssueReportCardData>('/view-issue-report-cards/', {
+                    search: debouncedSearchValue || undefined,
+                    limit: searchLimit,
+                });
+                
+                setIssueReports(issueReports);
             }
             catch (e) {
                 console.error((e as Error).message);
@@ -30,7 +42,13 @@ function AdminDashboardReports() {
         };
 
         fetchIssueReports();
-    }, []);
+    }, [debouncedSearchValue, searchLimit]);
+
+    return { searchValue, setSearchValue, searchLimit, setSearchLimit, issueReports, loading, isActive, setIsActive};
+};
+
+function AdminDashboardReports() {
+    const { searchValue, setSearchValue, searchLimit, setSearchLimit, issueReports, loading, isActive, setIsActive } = useAdminDashboardReportsData();
 
     return (
         <>
@@ -48,7 +66,7 @@ function AdminDashboardReports() {
                     </div>
                     <div className="flex items-center w-1/2 px-4 rounded-sm border mb-4">
                         <SearchIcon />
-                        <input type="text" placeholder="Search reports" className="w-full py-3 px-1" />
+                        <input type="text" value={searchValue} placeholder="Search reports" className="w-full py-3 px-1" onChange={(e) => setSearchValue(e.target.value)}/>
                     </div>
                     <div className="relative flex justify-between items-center font-semibold my-12">
                         <p className="absolute left-0">Title</p>
@@ -65,6 +83,11 @@ function AdminDashboardReports() {
                         <ul>
                             {
                                 issueReports.filter((issueReport) => isActive == !issueReport.is_resolved).map((issueReport) => <li key={issueReport["issue_report_id"]} className="border-t last:border-b"><IssueReportCard issueReportCard={issueReport} /></li>)
+                            }
+                            <p className="text-center mt-16 mb-12">Results 1-{issueReports.length}</p>
+                            {
+                                issueReports.length === searchLimit &&
+                                <button type="button" className="block mx-auto bg-arb-blue text-[#fff] py-3 px-5 rounded-3xl hover:bg-arb-blue-hover cursor-pointer" onClick={() => setSearchLimit((searchLimit) => searchLimit + 10)}>See More</button>
                             }
                         </ul>
                     }

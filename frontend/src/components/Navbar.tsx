@@ -88,14 +88,14 @@ function Navbar() {
                         <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 2 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
                     </div>
                 }
-                <div className="relative group" onClick={() => setTabOpen(3)}>
+                {/* <div className="relative group" onClick={() => setTabOpen(3)}>
                     <Link to='askmaizey' className="text-[#fff]">Ask MAIZEY</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 3 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
-                </div>
-                <div className="relative group" onClick={() => setTabOpen(5)}>
+                </div> */}
+                {/* <div className="relative group" onClick={() => setTabOpen(5)}>
                     <Link to='report-issue' className="text-[#fff]">Report an Issue</Link>
                     <div className={`absolute bottom-0 left-0  h-0.5 ${tabOpen === 5 ? "w-full bg-main-bg" : "w-0 bg-maize transition-all group-hover:w-full"}`}></div>
-                </div>
+                </div> */}
             </div>
             {/* <div className="border border-red-500 relative">
                 <div className="w-20 h-20 rounded-full" onClick={() => setProfileOpen((isProfileOpen) => !isProfileOpen)}>

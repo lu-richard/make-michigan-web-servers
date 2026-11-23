@@ -24,7 +24,8 @@ import { useNavigate } from 'react-router-dom';
 function CompleteProfile() {
     const [pronouns, setPronouns] = useState("");
     const [roles, setRoles] = useState<Set<string>>(new Set());
-    const roleOptions = ["undergrad_student", "grad_student", "alum", "shop_mentor", "shop_manager", "staff"];
+    const roleOptions = ["undergrad_student", "grad_student"];
+    // "alum", "shop_mentor", "shop_manager", "staff"
     const { setProfile } = useAppContext();
     const navigate = useNavigate();
 

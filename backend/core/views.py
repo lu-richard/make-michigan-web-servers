@@ -2,7 +2,7 @@ from django.http import Http404
 from django.middleware.csrf import get_token
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -76,22 +76,25 @@ class OwnRowsUnlessStaffMixin:
 
 # SQL View ViewSets
 
-class ViewUserTrainingsViewSet(viewsets.ModelViewSet):
+class ViewUserTrainingsViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = ViewUserTrainings.objects.all().order_by('user_id')
     serializer_class = ViewUserTrainingsSerializer
     pagination_class = StandardResultsSetPagination
+    owner_field = 'user_id'
 
 class ViewCredentialModelPrerequisitesViewSet(viewsets.ModelViewSet):
     queryset = ViewCredentialModelPrerequisites.objects.all()
     serializer_class = ViewCredentialModelPrerequisitesSerializer
     ordering_fields = ['prerequisite_credential_model_name', 'dependent_credential_model_name']
 
-class ViewCredentialsAdminViewSet(viewsets.ModelViewSet):
+class ViewCredentialsAdminViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = ViewCredentialsAdmin.objects.all().order_by('recipient_user_id')
     serializer_class = ViewCredentialsAdminSerializer
     pagination_class = StandardResultsSetPagination
     filterset_fields = ['recipient_user_id']
+    search_fields = ['completion_date', 'expiration_date', 'credential_model_name', 'credential_status', 'author_first_name', 'author_last_name', 'author_middle_initial', 'makerspace_name']
     ordering_fields = ['completion_date', 'credential_model_name', 'credential_status', 'makerspace_name']
+    owner_field = 'recipient_user_id'
 
 class ViewEquipmentDetailPagesViewSet(viewsets.ModelViewSet):
     queryset = ViewEquipmentDetailPages.objects.all()
@@ -102,18 +105,21 @@ class ViewIssueReportCardsViewSet(viewsets.ModelViewSet):
     queryset = ViewIssueReportCards.objects.all().order_by('issue_report_id')
     serializer_class = ViewIssueReportCardsSerializer
     pagination_class = StandardResultsSetPagination
+    search_fields = ['equipment_name', 'reporter_first_name', 'reporter_last_name', 'overseer_first_name', 'overseer_last_name', 'description', 'title', 'issue_type']
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 class ViewMakerspaceDetailPagesViewSet(viewsets.ModelViewSet):
     queryset = ViewMakerspaceDetailPages.objects.all()
     serializer_class = ViewMakerspaceDetailPagesSerializer
     filterset_fields = ['makerspace_id']
 
-class CredentialSummaryViewSet(viewsets.ModelViewSet):
+class CredentialSummaryViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = CredentialSummary.objects.all().order_by('recipient_user_id')
     serializer_class = CredentialSummarySerializer
     pagination_class = StandardResultsSetPagination
     filterset_fields = ['recipient_user_id']
     ordering_fields = ['completion_date', 'expiration_date', 'credential_status']
+    owner_field = 'recipient_user_id'
 
 class ViewEquipmentCardsViewSet(viewsets.ModelViewSet):
     queryset = ViewEquipmentCards.objects.all()
@@ -128,15 +134,17 @@ class ViewMakerspaceCardsViewSet(viewsets.ModelViewSet):
     search_fields = ['makerspace_name', 'building', 'rooms', 'description', 'themes']
     ordering_fields = ['makerspace_name', 'building']
 
-class ViewPinnedEquipmentViewSet(viewsets.ModelViewSet):
+class ViewPinnedEquipmentViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = ViewPinnedEquipment.objects.all()
     serializer_class = ViewPinnedEquipmentSerializer
     filterset_fields = ['user_id']
+    owner_field = 'user_id'
 
-class ViewWishlistedCredentialModelViewSet(viewsets.ModelViewSet):
+class ViewWishlistedCredentialModelViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = ViewWishlistedCredentialModels.objects.all()
     serializer_class = ViewWishlistedCredentialModelSerializer
     filterset_fields = ['user_id']
+    owner_field = 'user_id'
 
 # Standard Table ViewSets
 
@@ -227,7 +235,7 @@ class EquipmentRestrictedMaterialViewSet(CompositeKeyLookupMixin, viewsets.Model
     filterset_fields = ['equipment_id', 'material_id']
     ordering_fields = ['equipment_id', 'material_id']
 
-class IssueReportViewSet(viewsets.ModelViewSet):
+class IssueReportViewSet(OwnRowsUnlessStaffMixin, viewsets.ModelViewSet):
     queryset = IssueReport.objects.all().order_by('issue_report_id')
     serializer_class = IssueReportSerializer
     pagination_class = StandardResultsSetPagination
@@ -235,7 +243,7 @@ class IssueReportViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrStaff]
     owner_field = 'reporter_user_id'
 
-class PinnedEquipmentViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
+class PinnedEquipmentViewSet(OwnRowsUnlessStaffMixin, CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = PinnedEquipment.objects.all()
     serializer_class = PinnedEquipmentSerializer
     composite_key_fields = ['user_id', 'equipment_id']
@@ -244,7 +252,7 @@ class PinnedEquipmentViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrStaff]
     owner_field = 'user_id'
 
-class WishlistedCredentialModelViewSet(CompositeKeyLookupMixin, viewsets.ModelViewSet):
+class WishlistedCredentialModelViewSet(OwnRowsUnlessStaffMixin, CompositeKeyLookupMixin, viewsets.ModelViewSet):
     queryset = WishlistedCredentialModels.objects.all()
     serializer_class = WishlistedCredentialModelSerializer
     composite_key_fields = ['user_id', 'credential_model_id']
