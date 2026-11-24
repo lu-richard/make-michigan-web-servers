@@ -109,7 +109,7 @@ function EquipmentDetail() {
                                     <p>{equipment["credential_model_name"]}</p>
                                     <ArrowForwardIcon />
                                 </Link> :
-                                <p className="text-lg">None</p>
+                                <p className="text-lg">Contact makerspace staff for training requirements</p>
                             }
                         </div>
                     </div>

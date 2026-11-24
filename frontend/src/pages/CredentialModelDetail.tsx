@@ -8,6 +8,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { useAppContext } from "@/context/AppContext";
+import DescriptionText from "@/components/DescriptionText";
 
 const useCredentialModelDetailData = () => {
     const { makerspaceId, credModelId } = useParams();
@@ -128,7 +129,7 @@ function CredentialModelDetail() {
                     <div className="py-16 pl-24 pr-32 flex justify-center gap-20">
                         <section className="flex-2">
                             <h3 className="text-xl text-navy-blue font-semibold">Description:</h3>
-                            <p className="text-xl">{credentialModel.description}</p>
+                            <DescriptionText text={credentialModel.description} className="text-xl" />
                         </section>
                         <section className="flex-1">
                             <h3 className="text-xl text-navy-blue font-semibold">Equipment Unlocked:</h3>
